@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const PDFDocument = require("pdfkit");
+const QRCode = require("qrcode");
 
 dotenv.config();
 
@@ -18,10 +20,14 @@ MIDDLEWARE
 ========================================================= */
 
 app.use(
-cors({
-origin: "http://localhost:5173",
-credentials: true,
-})
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "http://172.20.10.2:5173",
+    ],
+    credentials: true,
+  })
 );
 
 app.use(express.json());
@@ -3812,6 +3818,793 @@ app.get(
     }
   }
 );
+ app.get(
+  "/api/public/businesses/:businessId/certificates",
+  async (req, res) => {
+    try {
+      const businessId = Number(
+        req.params.businessId
+      );
+
+      if (
+        !Number.isInteger(businessId) ||
+        businessId <= 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid business ID.",
+        });
+      }
+
+      const businessResult = await pool.query(
+        `
+        SELECT
+          id,
+          business_name
+        FROM businesses
+        WHERE id = $1
+        `,
+        [businessId]
+      );
+
+      if (businessResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Business not found.",
+        });
+      }
+
+      const business =
+        businessResult.rows[0];
+
+      const certificateResult =
+        await pool.query(
+          `
+          SELECT
+            c.id,
+            c.certificate_number,
+            c.verification_id,
+            c.application_id,
+            c.instrument_id,
+            c.business_id,
+            c.certificate_type,
+            c.issue_date,
+            c.valid_until,
+            c.status,
+            c.officer_id,
+
+            b.business_name,
+
+            i.instrument_code,
+            i.instrument_type,
+            i.manufacturer,
+            i.model,
+            i.serial_number
+
+          FROM certificates c
+
+          LEFT JOIN businesses b
+            ON b.id = c.business_id
+
+          LEFT JOIN instruments i
+            ON i.id = c.instrument_id
+
+          WHERE c.business_id = $1
+
+          ORDER BY c.id DESC
+          `,
+          [businessId]
+        );
+
+      const certificates =
+        certificateResult.rows.map(
+          (certificate) => ({
+            certificateId:
+              `CERT-${certificate.id}`,
+
+            certificateNumber:
+              certificate.certificate_number,
+
+            verificationId:
+              certificate.verification_id,
+
+            applicationId:
+              certificate.application_id,
+
+            instrumentId:
+              certificate.instrument_code ??
+              certificate.instrument_id,
+
+            businessId:
+              certificate.business_id,
+
+            businessName:
+              certificate.business_name,
+
+            certificateType:
+              certificate.certificate_type,
+
+            issueDate:
+              certificate.issue_date,
+
+            validUntil:
+              certificate.valid_until,
+
+            status:
+              certificate.status,
+
+            officerId:
+              certificate.officer_id,
+
+            instrumentType:
+              certificate.instrument_type,
+
+            manufacturer:
+              certificate.manufacturer,
+
+            model:
+              certificate.model,
+
+            serialNumber:
+              certificate.serial_number,
+          })
+        );
+
+      return res.json({
+        success: true,
+
+        business: {
+          businessId:
+            business.id,
+
+          businessName:
+            business.business_name,
+        },
+
+        count:
+          certificates.length,
+
+        certificates,
+      });
+    } catch (error) {
+      console.error(
+        "Public business certificate error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to load business certificates.",
+      });
+    }
+  }
+);
+ app.get("/api/public/businesses/search", async (req, res) => {
+  try {
+    const businessName = String(req.query.businessName || "").trim();
+
+    if (!businessName) {
+      return res.status(400).json({
+        success: false,
+        message: "Business name is required.",
+      });
+    }
+
+    const result = await pool.query(
+      `
+      SELECT
+        id,
+        business_name
+      FROM businesses
+      WHERE LOWER(business_name) LIKE LOWER($1)
+      ORDER BY business_name ASC
+      LIMIT 20
+      `,
+      [`%${businessName}%`]
+    );
+
+    return res.json({
+      success: true,
+      businesses: result.rows.map((business) => ({
+        businessId: business.id,
+        businessName: business.business_name,
+      })),
+    });
+  } catch (error) {
+    console.error("Public business search error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to search businesses.",
+    });
+  }
+});
+/* =========================================================
+   PUBLIC CERTIFICATE PDF
+   QR SCAN -> PDF CERTIFICATE
+   NO LOGIN REQUIRED
+========================================================= */
+
+app.get(
+  "/api/public/certificates/:certificateId/pdf",
+  async (req, res) => {
+    try {
+      const rawId = String(
+        req.params.certificateId || ""
+      )
+        .trim()
+        .toUpperCase();
+
+      if (!rawId) {
+        return res.status(400).json({
+          success: false,
+          message: "Certificate ID is required.",
+        });
+      }
+
+      let result;
+
+      /*
+       * Accept:
+       * CERT-1
+       * ALMVE/2026/739580
+       */
+
+      if (/^CERT-\d+$/.test(rawId)) {
+        const certificateId = Number(
+          rawId.replace("CERT-", "")
+        );
+
+        result = await pool.query(
+          `
+          SELECT
+            c.id,
+            c.certificate_number,
+            c.verification_id,
+            c.application_id,
+            c.instrument_id,
+            c.business_id,
+            c.certificate_type,
+            c.issue_date,
+            c.valid_until,
+            c.status,
+
+            v.verification_number,
+            v.verification_date,
+            v.verification_type,
+            v.location AS verification_location,
+            v.result AS verification_result,
+            v.remarks AS verification_remarks,
+
+            a.application_number,
+
+            i.instrument_code,
+            i.instrument_type,
+            i.manufacturer,
+            i.model,
+            i.serial_number,
+            i.capacity,
+
+            b.business_name,
+
+            ins.employee_id,
+            ins.name AS inspector_name,
+
+            o.test_name,
+            o.standard_value,
+            o.observed_value,
+            o.permissible_error,
+            o.error_value,
+            o.unit,
+            o.result AS observation_result,
+            o.remarks AS observation_remarks
+
+          FROM certificates c
+
+          LEFT JOIN verifications v
+            ON v.id = c.verification_id
+
+          LEFT JOIN applications a
+            ON a.id = c.application_id
+
+          LEFT JOIN instruments i
+            ON i.id = c.instrument_id
+
+          LEFT JOIN businesses b
+            ON b.id = c.business_id
+
+          LEFT JOIN inspectors ins
+            ON ins.id = v.inspector_id
+
+          LEFT JOIN observations o
+            ON o.verification_id = c.verification_id
+
+          WHERE c.id = $1
+
+          ORDER BY o.id ASC
+
+          LIMIT 1
+          `,
+          [certificateId]
+        );
+      } else {
+        result = await pool.query(
+          `
+          SELECT
+            c.id,
+            c.certificate_number,
+            c.verification_id,
+            c.application_id,
+            c.instrument_id,
+            c.business_id,
+            c.certificate_type,
+            c.issue_date,
+            c.valid_until,
+            c.status,
+
+            v.verification_number,
+            v.verification_date,
+            v.verification_type,
+            v.location AS verification_location,
+            v.result AS verification_result,
+            v.remarks AS verification_remarks,
+
+            a.application_number,
+
+            i.instrument_code,
+            i.instrument_type,
+            i.manufacturer,
+            i.model,
+            i.serial_number,
+            i.capacity,
+
+            b.business_name,
+
+            ins.employee_id,
+            ins.name AS inspector_name,
+
+            o.test_name,
+            o.standard_value,
+            o.observed_value,
+            o.permissible_error,
+            o.error_value,
+            o.unit,
+            o.result AS observation_result,
+            o.remarks AS observation_remarks
+
+          FROM certificates c
+
+          LEFT JOIN verifications v
+            ON v.id = c.verification_id
+
+          LEFT JOIN applications a
+            ON a.id = c.application_id
+
+          LEFT JOIN instruments i
+            ON i.id = c.instrument_id
+
+          LEFT JOIN businesses b
+            ON b.id = c.business_id
+
+          LEFT JOIN inspectors ins
+            ON ins.id = v.inspector_id
+
+          LEFT JOIN observations o
+            ON o.verification_id = c.verification_id
+
+          WHERE UPPER(c.certificate_number) = $1
+
+          ORDER BY o.id ASC
+
+          LIMIT 1
+          `,
+          [rawId]
+        );
+      }
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: `Certificate ${rawId} not found.`,
+        });
+      }
+
+      const row = result.rows[0];
+
+      /* -----------------------------------------------------
+         PDF URL
+      ----------------------------------------------------- */
+
+      const host =
+        req.headers["x-forwarded-host"] ||
+        req.headers.host;
+
+      const protocol =
+        req.headers["x-forwarded-proto"] ||
+        req.protocol;
+
+      const pdfUrl =
+        `${protocol}://${host}` +
+        `/api/public/certificates/CERT-${row.id}/pdf`;
+
+      /* -----------------------------------------------------
+         CREATE QR CODE
+      ----------------------------------------------------- */
+
+      const qrBuffer = await QRCode.toBuffer(
+        pdfUrl,
+        {
+          type: "png",
+          width: 180,
+          margin: 2,
+        }
+      );
+
+      /* -----------------------------------------------------
+         PDF RESPONSE
+      ----------------------------------------------------- */
+
+      res.setHeader(
+        "Content-Type",
+        "application/pdf"
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="Certificate-${row.certificate_number}.pdf"`
+      );
+
+      const doc = new PDFDocument({
+        size: "A4",
+        margin: 45,
+      });
+
+      doc.pipe(res);
+
+      /* =====================================================
+         HEADER
+      ===================================================== */
+
+      doc
+        .fontSize(11)
+        .fillColor("#00843D")
+        .text(
+          "LEGAL METROLOGY",
+          {
+            align: "center",
+          }
+        );
+
+      doc
+        .moveDown(0.4)
+        .fontSize(22)
+        .fillColor("#173F73")
+        .font("Helvetica-Bold")
+        .text(
+          "VERIFICATION CERTIFICATE",
+          {
+            align: "center",
+          }
+        );
+
+      doc
+        .moveDown(0.3)
+        .fontSize(11)
+        .fillColor("#555555")
+        .font("Helvetica")
+        .text(
+          row.certificate_type ||
+            "Digital Verification Certificate",
+          {
+            align: "center",
+          }
+        );
+
+      doc.moveDown(1);
+
+      /* =====================================================
+         CERTIFICATE NUMBER
+      ===================================================== */
+
+      doc
+        .fontSize(16)
+        .fillColor("#173F73")
+        .font("Helvetica-Bold")
+        .text(
+          row.certificate_number || "-",
+          {
+            align: "center",
+          }
+        );
+
+      doc.moveDown(1);
+
+      /* =====================================================
+         QR CODE
+      ===================================================== */
+
+      doc.image(
+        qrBuffer,
+        207,
+        doc.y,
+        {
+          width: 180,
+          height: 180,
+        }
+      );
+
+      doc.moveDown(12);
+
+      doc
+        .fontSize(8)
+        .fillColor("#666666")
+        .font("Helvetica")
+        .text(
+          "Scan the QR code to verify this certificate.",
+          {
+            align: "center",
+          }
+        );
+
+      doc.moveDown(1);
+
+      /* =====================================================
+         DETAILS TABLE
+      ===================================================== */
+
+      const startX = 70;
+      const valueX = 270;
+
+      function addRow(label, value) {
+        const y = doc.y;
+
+        doc
+          .fontSize(10)
+          .fillColor("#666666")
+          .font("Helvetica")
+          .text(
+            label,
+            startX,
+            y,
+            {
+              width: 180,
+            }
+          );
+
+        doc
+          .fontSize(10)
+          .fillColor("#173F73")
+          .font("Helvetica-Bold")
+          .text(
+            value || "-",
+            valueX,
+            y,
+            {
+              width: 260,
+            }
+          );
+
+        doc.moveDown(0.7);
+      }
+
+      addRow(
+        "Certificate Number",
+        row.certificate_number
+      );
+
+      addRow(
+        "Application ID",
+        row.application_number
+      );
+
+      addRow(
+        "Verification ID",
+        row.verification_number
+      );
+
+      addRow(
+        "Business",
+        row.business_name
+      );
+
+      addRow(
+        "Instrument",
+        row.instrument_type
+      );
+
+      addRow(
+        "Instrument ID",
+        row.instrument_code
+      );
+
+      addRow(
+        "Manufacturer",
+        row.manufacturer
+      );
+
+      addRow(
+        "Model",
+        row.model
+      );
+
+      addRow(
+        "Serial Number",
+        row.serial_number
+      );
+
+      addRow(
+        "Officer ID",
+        row.employee_id
+      );
+
+      addRow(
+        "Verification Date",
+        row.verification_date
+          ? String(row.verification_date).slice(
+              0,
+              10
+            )
+          : ""
+      );
+
+      addRow(
+        "Issue Date",
+        row.issue_date
+          ? String(row.issue_date).slice(
+              0,
+              10
+            )
+          : ""
+      );
+
+      addRow(
+        "Valid Until",
+        row.valid_until
+          ? String(row.valid_until).slice(
+              0,
+              10
+            )
+          : ""
+      );
+
+      addRow(
+        "Status",
+        row.status || "Valid"
+      );
+
+      /* =====================================================
+         VERIFICATION RESULT
+      ===================================================== */
+
+      doc.moveDown(0.5);
+
+      doc
+        .fontSize(12)
+        .fillColor("#173F73")
+        .font("Helvetica-Bold")
+        .text("Verification Result");
+
+      doc.moveDown(0.5);
+
+      doc
+        .fontSize(11)
+        .fillColor("#00843D")
+        .font("Helvetica-Bold")
+        .text(
+          row.verification_result ||
+            "PASS",
+          {
+            align: "center",
+          }
+        );
+
+      /* =====================================================
+         OBSERVATION
+      ===================================================== */
+
+      if (row.test_name) {
+        doc.moveDown(1);
+
+        doc
+          .fontSize(12)
+          .fillColor("#173F73")
+          .font("Helvetica-Bold")
+          .text("MPE Observation");
+
+        doc.moveDown(0.5);
+
+        addRow(
+          "Test",
+          row.test_name
+        );
+
+        addRow(
+          "Standard Value",
+          row.standard_value != null
+            ? `${row.standard_value} ${
+                row.unit || ""
+              }`
+            : "-"
+        );
+
+        addRow(
+          "Observed Value",
+          row.observed_value != null
+            ? `${row.observed_value} ${
+                row.unit || ""
+              }`
+            : "-"
+        );
+
+        addRow(
+          "Permissible Error",
+          row.permissible_error != null
+            ? `± ${row.permissible_error} ${
+                row.unit || ""
+              }`
+            : "-"
+        );
+
+        addRow(
+          "Error",
+          row.error_value != null
+            ? `${row.error_value} ${
+                row.unit || ""
+              }`
+            : "-"
+        );
+
+        addRow(
+          "Result",
+          row.observation_result ||
+            "PASS"
+        );
+      }
+
+      /* =====================================================
+         FOOTER
+      ===================================================== */
+
+      doc.moveDown(1);
+
+      doc
+        .fontSize(8)
+        .fillColor("#777777")
+        .font("Helvetica")
+        .text(
+          "This is a digitally generated Legal Metrology Verification Certificate.",
+          {
+            align: "center",
+          }
+        );
+
+      doc
+        .moveDown(0.3)
+        .text(
+          "Certificate authenticity can be verified using the QR code.",
+          {
+            align: "center",
+          }
+        );
+
+      doc.end();
+    } catch (error) {
+      console.error(
+        "Certificate PDF generation error:",
+        error
+      );
+
+      if (!res.headersSent) {
+        return res.status(500).json({
+          success: false,
+          message:
+            "Unable to generate certificate PDF.",
+        });
+      }
+    }
+  }
+);
 /* =========================================================
    PUBLIC CERTIFICATE VERIFICATION
    No login required
@@ -4423,16 +5216,13 @@ START SERVER
 const PORT =
 process.env.PORT || 5000;
 
-app.listen(
-PORT, '0.0.0.0',
-() => {
-console.log(
-  `ALMVE Backend running on http://localhost:${PORT}`
-);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`ALMVE Backend running on http://localhost:${PORT}`);
+  console.log(`Network access: http://172.20.10.2:${PORT}`);
+  console.log(`Health check: http://172.20.10.2:${PORT}/api/health`);
+});
 
 console.log(
   `Health check: http://localhost:${PORT}/api/health`
 );
 
-}
-);
