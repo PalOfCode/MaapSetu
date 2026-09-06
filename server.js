@@ -3665,6 +3665,153 @@ o.remarks AS observation_remarks,
     }
   }
 );
+
+/* =========================================================
+   PUBLIC CERTIFICATE SEARCH
+   Search by Business Name + Instrument Type
+   NO LOGIN REQUIRED
+   ========================================================= */
+
+app.get(
+  "/api/public/certificates/search",
+  async (req, res) => {
+    try {
+      const businessName = String(
+        req.query.businessName || ""
+      ).trim();
+
+      const instrumentType = String(
+        req.query.instrumentType || ""
+      ).trim();
+
+      if (!businessName || !instrumentType) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Business name and instrument type are required.",
+        });
+      }
+
+      const result = await pool.query(
+        `
+        SELECT
+          c.id,
+          c.certificate_number,
+          c.verification_id,
+          c.application_id,
+          c.instrument_id,
+          c.business_id,
+          c.certificate_type,
+          c.issue_date,
+          c.valid_until,
+          c.status,
+          c.officer_id,
+
+          b.business_name,
+
+          i.instrument_code,
+          i.instrument_type,
+          i.manufacturer,
+          i.model,
+          i.serial_number
+
+        FROM certificates c
+
+        LEFT JOIN businesses b
+          ON b.id = c.business_id
+
+        LEFT JOIN instruments i
+          ON i.id = c.instrument_id
+
+        WHERE
+          LOWER(b.business_name)
+          LIKE LOWER($1)
+
+          AND
+
+          LOWER(i.instrument_type)
+          LIKE LOWER($2)
+
+        ORDER BY c.id DESC
+        `,
+        [
+          `%${businessName}%`,
+          `%${instrumentType}%`,
+        ]
+      );
+
+      const certificates =
+        result.rows.map((row) => ({
+          certificateId:
+            `CERT-${row.id}`,
+
+          certificateNumber:
+            row.certificate_number,
+
+          verificationId:
+            row.verification_id,
+
+          applicationId:
+            row.application_id,
+
+          instrumentId:
+            row.instrument_code ||
+            row.instrument_id,
+
+          businessId:
+            row.business_id,
+
+          businessName:
+            row.business_name,
+
+          certificateType:
+            row.certificate_type,
+
+          issueDate:
+            row.issue_date,
+
+          validUntil:
+            row.valid_until,
+
+          status:
+            row.status,
+
+          officerId:
+            row.officer_id,
+
+          instrumentType:
+            row.instrument_type,
+
+          manufacturer:
+            row.manufacturer,
+
+          model:
+            row.model,
+
+          serialNumber:
+            row.serial_number,
+        }));
+
+      return res.json({
+        success: true,
+        count: certificates.length,
+        certificates,
+      });
+
+    } catch (error) {
+      console.error(
+        "Public certificate search error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to search certificates.",
+      });
+    }
+  }
+);
 /* =========================================================
    PUBLIC CERTIFICATE VERIFICATION
    No login required
