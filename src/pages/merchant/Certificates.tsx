@@ -572,13 +572,13 @@ function Certificates() {
      PUBLIC VERIFICATION URL
   ========================================= */
 
-  const getVerificationUrl = (
-    certificateId: string
-  ) => {
-    return `${window.location.origin}/verify/${encodeURIComponent(
-      certificateId
-    )}`;
-  };
+ const getVerificationUrl = (
+  certificateId: string
+) => {
+  return `http://localhost:5000/api/public/certificates/${encodeURIComponent(
+    certificateId
+  )}`;
+};
 
   /* =========================================
      OPEN PUBLIC VERIFICATION
