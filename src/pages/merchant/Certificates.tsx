@@ -40,6 +40,7 @@ interface Certificate {
 
   instrumentId: string;
   businessId: string;
+  businessName?: string;
 
   certificateType: string;
 
@@ -76,6 +77,7 @@ interface StoredCertificate {
 
   instrumentId?: unknown;
   businessId?: unknown;
+  businessName?: unknown;
 
   certificateType?: unknown;
 
@@ -111,10 +113,6 @@ interface StoredCertificate {
 }
 
 /* =========================================
-   DEFAULT CERTIFICATES
-========================================= */
-
-/* =========================================
    HELPERS
 ========================================= */
 
@@ -142,8 +140,7 @@ function getCertificateStatus(
 ): CertificateStatus {
   if (
     storedStatus === "Valid" ||
-    storedStatus ===
-      "Expiring Soon" ||
+    storedStatus === "Expiring Soon" ||
     storedStatus === "Expired"
   ) {
     return storedStatus;
@@ -153,13 +150,10 @@ function getCertificateStatus(
     return "Valid";
   }
 
-  const parsedDate =
-    new Date(validUntil);
+  const parsedDate = new Date(validUntil);
 
   if (
-    Number.isNaN(
-      parsedDate.getTime()
-    )
+    Number.isNaN(parsedDate.getTime())
   ) {
     return "Valid";
   }
@@ -189,34 +183,22 @@ function normalizeCertificate(
   item: StoredCertificate
 ): Certificate {
   const certificateId =
-    toStringValue(
-      item.certificateId
-    ) ||
+    toStringValue(item.certificateId) ||
     toStringValue(item.id) ||
     `CERT-${Date.now()}`;
 
   const certificateNumber =
-    toStringValue(
-      item.certificateNumber
-    ) ||
+    toStringValue(item.certificateNumber) ||
     certificateId;
 
   const issueDate =
-    toStringValue(
-      item.issueDate
-    ) ||
-    toStringValue(
-      item.issuedDate
-    ) ||
-    toStringValue(
-      item.issued
-    ) ||
+    toStringValue(item.issueDate) ||
+    toStringValue(item.issuedDate) ||
+    toStringValue(item.issued) ||
     "-";
 
   const validUntil =
-    toStringValue(
-      item.validUntil
-    ) ||
+    toStringValue(item.validUntil) ||
     "Not specified";
 
   const status =
@@ -231,32 +213,26 @@ function normalizeCertificate(
     certificateNumber,
 
     verificationId:
-      toStringValue(
-        item.verificationId
-      ) ||
+      toStringValue(item.verificationId) ||
       `VER-${Date.now()}`,
 
     applicationId:
-      toStringValue(
-        item.applicationId
-      ),
+      toStringValue(item.applicationId),
 
     instrumentId:
-      toStringValue(
-        item.instrumentId
-      ) ||
+      toStringValue(item.instrumentId) ||
       "INS-UNKNOWN",
 
     businessId:
-      toStringValue(
-        item.businessId
-      ) ||
+      toStringValue(item.businessId) ||
       "BUS-UNKNOWN",
 
+    businessName:
+      toStringValue(item.businessName) ||
+      undefined,
+
     certificateType:
-      toStringValue(
-        item.certificateType
-      ) ||
+      toStringValue(item.certificateType) ||
       "Verification Certificate",
 
     issueDate,
@@ -266,75 +242,47 @@ function normalizeCertificate(
     status,
 
     officerId:
-      toStringValue(
-        item.officerId
-      ) ||
-      toStringValue(
-        item.officer
-      ) ||
+      toStringValue(item.officerId) ||
+      toStringValue(item.officer) ||
       "Authorized Inspector",
 
     instrumentType:
-      toStringValue(
-        item.instrumentType
-      ) ||
+      toStringValue(item.instrumentType) ||
       "Unknown Instrument",
 
     manufacturer:
-      toStringValue(
-        item.manufacturer
-      ) ||
+      toStringValue(item.manufacturer) ||
       "Unknown Manufacturer",
 
     nominalValue:
-      toStringValue(
-        item.nominalValue
-      ) ||
+      toStringValue(item.nominalValue) ||
       undefined,
 
     observedValue:
-      toStringValue(
-        item.observedValue
-      ) ||
-      toStringValue(
-        item.observedDeviation
-      ) ||
+      toStringValue(item.observedValue) ||
+      toStringValue(item.observedDeviation) ||
       undefined,
 
     permissibleError:
-      toStringValue(
-        item.permissibleError
-      ) ||
-      toStringValue(
-        item.allowedMPE
-      ) ||
+      toStringValue(item.permissibleError) ||
+      toStringValue(item.allowedMPE) ||
       undefined,
 
     error:
-      toStringValue(
-        item.error
-      ) ||
+      toStringValue(item.error) ||
       undefined,
 
     absoluteError:
-      toStringValue(
-        item.absoluteError
-      ) ||
-      toStringValue(
-        item.absoluteDeviation
-      ) ||
+      toStringValue(item.absoluteError) ||
+      toStringValue(item.absoluteDeviation) ||
       undefined,
 
     remarks:
-      toStringValue(
-        item.remarks
-      ) ||
+      toStringValue(item.remarks) ||
       undefined,
 
     createdAt:
-      toStringValue(
-        item.createdAt
-      ) ||
+      toStringValue(item.createdAt) ||
       new Date().toISOString(),
   };
 }
@@ -344,8 +292,7 @@ function normalizeCertificate(
 ========================================= */
 
 function Certificates() {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
   const [
     search,
@@ -362,16 +309,14 @@ function Certificates() {
   const [
     selectedCertificate,
     setSelectedCertificate,
-  ] =
-    useState<Certificate | null>(
-      null
-    );
+  ] = useState<Certificate | null>(
+    null
+  );
 
   const [
     certificateList,
     setCertificateList,
-  ] =
-    useState<Certificate[]>([]);
+  ] = useState<Certificate[]>([]);
 
   const [isLoading, setIsLoading] =
     useState(true);
@@ -421,11 +366,16 @@ function Certificates() {
             typeof payload === "object" &&
             "message" in payload &&
             typeof (
-              payload as { message?: unknown }
+              payload as {
+                message?: unknown;
+              }
             ).message === "string"
               ? String(
-                  (payload as { message: string })
-                    .message
+                  (
+                    payload as {
+                      message: string;
+                    }
+                  ).message
                 )
               : `Unable to load certificates (${response.status})`;
 
@@ -437,9 +387,11 @@ function Certificates() {
           typeof payload === "object" &&
           "certificates" in payload &&
           Array.isArray(
-            (payload as {
-              certificates?: unknown;
-            }).certificates
+            (
+              payload as {
+                certificates?: unknown;
+              }
+            ).certificates
           )
             ? (
                 payload as {
@@ -469,6 +421,7 @@ function Certificates() {
 
         if (!cancelled) {
           setCertificateList([]);
+
           setLoadError(
             error instanceof Error
               ? error.message
@@ -502,21 +455,21 @@ function Certificates() {
 
       return certificateList.filter(
         (certificate) => {
-          const searchableText =
-            [
-              certificate.certificateId,
-              certificate.certificateNumber,
-              certificate.verificationId,
-              certificate.applicationId,
-              certificate.instrumentId,
-              certificate.businessId,
-              certificate.instrumentType,
-              certificate.manufacturer,
-              certificate.officerId,
-              certificate.certificateType,
-            ]
-              .join(" ")
-              .toLowerCase();
+          const searchableText = [
+            certificate.certificateId,
+            certificate.certificateNumber,
+            certificate.verificationId,
+            certificate.applicationId,
+            certificate.instrumentId,
+            certificate.businessId,
+            certificate.businessName ?? "",
+            certificate.instrumentType,
+            certificate.manufacturer,
+            certificate.officerId,
+            certificate.certificateType,
+          ]
+            .join(" ")
+            .toLowerCase();
 
           const matchesSearch =
             searchableText.includes(
@@ -525,8 +478,7 @@ function Certificates() {
 
           const matchesFilter =
             filter === "All" ||
-            certificate.status ===
-              filter;
+            certificate.status === filter;
 
           return (
             matchesSearch &&
@@ -550,8 +502,7 @@ function Certificates() {
   const validCount =
     certificateList.filter(
       (certificate) =>
-        certificate.status ===
-        "Valid"
+        certificate.status === "Valid"
     ).length;
 
   const expiringCount =
@@ -564,36 +515,44 @@ function Certificates() {
   const expiredCount =
     certificateList.filter(
       (certificate) =>
-        certificate.status ===
-        "Expired"
+        certificate.status === "Expired"
     ).length;
 
   /* =========================================
      PUBLIC VERIFICATION URL
+
+     IMPORTANT:
+     This MUST point to React.
+
+     DO NOT point this to:
+     /api/public/certificates/...
+
+     Otherwise the QR scanner will show JSON.
   ========================================= */
 
- const getVerificationUrl = (
-  certificateId: string
-) => {
-  return `http://172.20.10.2:5000/api/public/certificates/${encodeURIComponent(
-    certificateId
-  )}`;
-};
+  const getVerificationUrl = (
+    certificateId: string
+  ) => {
+    const backendUrl = "http://172.20.10.2:5000";
+
+    return `${backendUrl}/api/public/certificates/${encodeURIComponent(
+      certificateId
+    )}/pdf`;
+  };
 
   /* =========================================
      OPEN PUBLIC VERIFICATION
   ========================================= */
 
-  const openPublicVerification =
-    (
-      certificate: Certificate
-    ) => {
-      navigate(
-        `/verify/${encodeURIComponent(
-          certificate.certificateId
-        )}`
-      );
-    };
+  const openPublicVerification = (
+    certificate: Certificate
+  ) => {
+    navigate(
+      `/verify/${encodeURIComponent(
+        certificate.certificateId
+      )}`
+    );
+  };
 
   /* =========================================
      DOWNLOAD
@@ -602,39 +561,64 @@ function Certificates() {
   const downloadCertificate = (
     certificate: Certificate
   ) => {
-    const verificationUrl = getVerificationUrl(
-      certificate.certificateId
-    );
+    const verificationUrl =
+      getVerificationUrl(
+        certificate.certificateId
+      );
 
-    const printWindow = window.open(
-      "",
-      "_blank",
-      "width=1100,height=850"
-    );
+    const printWindow =
+      window.open(
+        "",
+        "_blank",
+        "width=1100,height=850"
+      );
 
     if (!printWindow) {
       alert(
         "Please allow pop-ups to download the certificate as PDF."
       );
+
       return;
     }
 
     const html = `
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>${escapeHtml(certificate.certificateNumber)}</title>
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+${escapeHtml(
+  certificate.certificateNumber
+)}
+</title>
+
 <style>
-* { box-sizing: border-box; }
-@page { size: A4; margin: 12mm; }
+
+* {
+  box-sizing: border-box;
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
 
 body {
   margin: 0;
   background: #ffffff;
   color: #0f172a;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
 }
 
 .certificate {
@@ -666,9 +650,11 @@ body {
   border-radius: 14px;
   background: #047857;
   color: #ffffff;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 27px;
   font-weight: 800;
 }
@@ -701,8 +687,10 @@ body {
 
 .grid {
   margin-top: 22px;
+
   display: grid;
   grid-template-columns: 1fr 1fr;
+
   gap: 10px;
 }
 
@@ -710,6 +698,7 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 11px;
+
   break-inside: avoid;
 }
 
@@ -718,6 +707,7 @@ body {
   color: #64748b;
   font-size: 9px;
   font-weight: 700;
+
   text-transform: uppercase;
 }
 
@@ -725,16 +715,21 @@ body {
   color: #0f172a;
   font-size: 12px;
   font-weight: 700;
+
   word-break: break-word;
 }
 
 .status {
   margin-top: 18px;
   padding: 12px;
+
   border-radius: 10px;
+
   background: #dcfce7;
   color: #166534;
+
   text-align: center;
+
   font-size: 12px;
   font-weight: 800;
 }
@@ -742,9 +737,12 @@ body {
 .verify {
   margin-top: 14px;
   padding: 12px;
+
   border: 1px solid #bbf7d0;
   border-radius: 10px;
+
   background: #f0fdf4;
+
   text-align: center;
 }
 
@@ -758,15 +756,22 @@ body {
   margin-top: 6px;
   color: #475569;
   font-size: 9px;
+
   word-break: break-all;
 }
-  .qr {
+
+.qr {
   display: block;
+
   width: 150px;
   height: 150px;
+
   margin: 12px auto;
+
   padding: 6px;
+
   background: #ffffff;
+
   border: 1px solid #e2e8f0;
   border-radius: 10px;
 }
@@ -774,83 +779,352 @@ body {
 .footer {
   margin-top: 16px;
   padding-top: 12px;
+
   border-top: 1px solid #e2e8f0;
+
   color: #64748b;
   font-size: 9px;
   line-height: 1.5;
+
   text-align: center;
 }
+
 </style>
+
 </head>
+
 <body>
+
 <div class="certificate">
+
   <div class="top-line"></div>
 
   <div class="header">
-    <div class="logo">A</div>
-    <div class="brand">ALMVE</div>
-    <div class="subtitle">Automated Legal Metrology Verification Engine</div>
-    <div class="title">DIGITAL VERIFICATION CERTIFICATE</div>
-    <div class="number">${escapeHtml(certificate.certificateNumber)}</div>
+
+    <div class="logo">
+      A
+    </div>
+
+    <div class="brand">
+      ALMVE
+    </div>
+
+    <div class="subtitle">
+      Automated Legal Metrology Verification Engine
+    </div>
+
+    <div class="title">
+      DIGITAL VERIFICATION CERTIFICATE
+    </div>
+
+    <div class="number">
+      ${escapeHtml(
+        certificate.certificateNumber
+      )}
+    </div>
+
   </div>
 
   <div class="grid">
-    <div class="item"><div class="label">Certificate ID</div><div class="value">${escapeHtml(certificate.certificateId)}</div></div>
-    <div class="item"><div class="label">Certificate Number</div><div class="value">${escapeHtml(certificate.certificateNumber)}</div></div>
-    <div class="item"><div class="label">Verification ID</div><div class="value">${escapeHtml(certificate.verificationId)}</div></div>
-    <div class="item"><div class="label">Application ID</div><div class="value">${escapeHtml(certificate.applicationId || "N/A")}</div></div>
-    <div class="item"><div class="label">Business ID</div><div class="value">${escapeHtml(certificate.businessId)}</div></div>
-    <div class="item"><div class="label">Instrument ID</div><div class="value">${escapeHtml(certificate.instrumentId)}</div></div>
-    <div class="item"><div class="label">Instrument Type</div><div class="value">${escapeHtml(certificate.instrumentType)}</div></div>
-    <div class="item"><div class="label">Manufacturer</div><div class="value">${escapeHtml(certificate.manufacturer)}</div></div>
-    <div class="item"><div class="label">Nominal Value</div><div class="value">${escapeHtml(certificate.nominalValue || "N/A")}</div></div>
-    <div class="item"><div class="label">Observed Value</div><div class="value">${escapeHtml(certificate.observedValue || "N/A")}</div></div>
-    <div class="item"><div class="label">Permissible Error</div><div class="value">${escapeHtml(certificate.permissibleError || "N/A")}</div></div>
-    <div class="item"><div class="label">Error</div><div class="value">${escapeHtml(certificate.error || "N/A")}</div></div>
-    <div class="item"><div class="label">Absolute Error</div><div class="value">${escapeHtml(certificate.absoluteError || "N/A")}</div></div>
-    <div class="item"><div class="label">Issuing Officer</div><div class="value">${escapeHtml(certificate.officerId)}</div></div>
-    <div class="item"><div class="label">Issue Date</div><div class="value">${escapeHtml(certificate.issueDate)}</div></div>
-    <div class="item"><div class="label">Valid Until</div><div class="value">${escapeHtml(certificate.validUntil)}</div></div>
-    <div class="item"><div class="label">Certificate Type</div><div class="value">${escapeHtml(certificate.certificateType)}</div></div>
-    <div class="item"><div class="label">Remarks</div><div class="value">${escapeHtml(certificate.remarks || "N/A")}</div></div>
+
+    <div class="item">
+      <div class="label">
+        Certificate ID
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.certificateId
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Certificate Number
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.certificateNumber
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Verification ID
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.verificationId
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Application ID
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.applicationId ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Business ID
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.businessId
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Business Name
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.businessName ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Instrument ID
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.instrumentId
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Instrument Type
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.instrumentType
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Manufacturer
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.manufacturer
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Nominal Value
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.nominalValue ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Observed Value
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.observedValue ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Permissible Error
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.permissibleError ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Error
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.error ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Absolute Error
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.absoluteError ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Issuing Officer
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.officerId
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Issue Date
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.issueDate
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Valid Until
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.validUntil
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Certificate Type
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.certificateType
+        )}
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="label">
+        Remarks
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.remarks ||
+          "N/A"
+        )}
+      </div>
+    </div>
+
   </div>
 
   <div class="status">
-    Certificate Status: ${escapeHtml(certificate.status)}
+    Certificate Status:
+    ${escapeHtml(
+      certificate.status
+    )}
   </div>
 
   <div class="verify">
-  <div class="verify-title">
-    PUBLIC CERTIFICATE VERIFICATION
+
+    <div class="verify-title">
+      PUBLIC CERTIFICATE VERIFICATION
+    </div>
+
+    <img
+      src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
+        verificationUrl
+      )}"
+      alt="Certificate verification QR"
+      class="qr"
+    />
+
+    <div class="url">
+      ${escapeHtml(
+        verificationUrl
+      )}
+    </div>
+
   </div>
 
-  <img
-    src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
-      verificationUrl
-    )}"
-    alt="Certificate verification QR"
-    class="qr"
-  />
-
-  <div class="url">
-    ${escapeHtml(verificationUrl)}
-  </div>
-</div>
   <div class="footer">
-    This digital certificate was generated by ALMVE (Automated Legal Metrology Verification Engine).
+
+    This digital certificate was generated by
+    ALMVE (Automated Legal Metrology Verification Engine).
+
     Verify the certificate using the public verification URL.
+
   </div>
+
 </div>
 
 <script>
-window.addEventListener("load", function () {
-  setTimeout(function () {
-    window.print();
-  }, 300);
-});
+
+window.addEventListener(
+  "load",
+  function () {
+    setTimeout(
+      function () {
+        window.print();
+      },
+      300
+    );
+  }
+);
+
 </script>
+
 </body>
-</html>`;
+
+</html>
+`;
 
     printWindow.document.open();
     printWindow.document.write(html);
@@ -886,12 +1160,15 @@ window.addEventListener("load", function () {
 
     printWindow.document.write(`
 <!DOCTYPE html>
+
 <html>
 
 <head>
 
 <title>
-${certificate.certificateId}
+${escapeHtml(
+  certificate.certificateId
+)}
 </title>
 
 <style>
@@ -903,106 +1180,154 @@ ${certificate.certificateId}
 body {
   margin: 0;
   padding: 30px;
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
   background: #f1f5f9;
   color: #0f172a;
 }
 
 .certificate {
   max-width: 850px;
+
   margin: auto;
+
   background: #ffffff;
+
   border: 3px solid #047857;
+
   border-radius: 20px;
+
   padding: 40px;
 }
 
 .header {
   text-align: center;
+
   border-bottom: 1px solid #e2e8f0;
+
   padding-bottom: 24px;
+
   margin-bottom: 25px;
 }
 
 .logo {
   width: 60px;
   height: 60px;
+
   background: #047857;
   color: white;
+
   border-radius: 15px;
+
   margin: auto;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   font-size: 28px;
   font-weight: bold;
 }
 
 h1 {
   margin: 12px 0 0;
+
   font-size: 28px;
 }
 
 .subtitle {
   margin-top: 6px;
+
   color: #64748b;
+
   font-size: 14px;
 }
 
 .title {
   margin-top: 18px;
+
   font-size: 20px;
+
   font-weight: 800;
+
   color: #065f46;
 }
 
 .number {
   margin-top: 7px;
+
   color: #047857;
+
   font-weight: 700;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    1fr 1fr;
+
   gap: 14px;
 }
 
 .item {
   border: 1px solid #e2e8f0;
+
   border-radius: 12px;
+
   padding: 14px;
 }
 
 .label {
   color: #64748b;
+
   font-size: 10px;
+
   font-weight: 700;
+
   text-transform: uppercase;
+
   margin-bottom: 6px;
 }
 
 .value {
   font-size: 14px;
+
   font-weight: 700;
+
   word-break: break-word;
 }
 
 .status {
   margin-top: 22px;
+
   padding: 14px;
+
   text-align: center;
+
   background: #dcfce7;
+
   color: #166534;
+
   border-radius: 12px;
+
   font-weight: bold;
 }
 
 .verify {
   margin-top: 20px;
+
   text-align: center;
+
   font-size: 12px;
+
   color: #64748b;
+
   word-break: break-all;
 }
 
@@ -1010,6 +1335,7 @@ h1 {
 
   body {
     padding: 0;
+
     background: white;
   }
 
@@ -1062,7 +1388,9 @@ h1 {
     </div>
 
     <div class="number">
-      ${certificate.certificateNumber}
+      ${escapeHtml(
+        certificate.certificateNumber
+      )}
     </div>
 
   </div>
@@ -1070,131 +1398,295 @@ h1 {
   <div class="grid">
 
     <div class="item">
+
       <div class="label">
         Certificate ID
       </div>
+
       <div class="value">
-        ${certificate.certificateId}
+        ${escapeHtml(
+          certificate.certificateId
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
+      <div class="label">
+        Certificate Number
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.certificateNumber
+        )}
+      </div>
+
+    </div>
+
+    <div class="item">
+
       <div class="label">
         Verification ID
       </div>
+
       <div class="value">
-        ${certificate.verificationId}
+        ${escapeHtml(
+          certificate.verificationId
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Application ID
       </div>
+
       <div class="value">
-        ${certificate.applicationId || "N/A"}
+        ${escapeHtml(
+          certificate.applicationId ||
+          "N/A"
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Business ID
       </div>
+
       <div class="value">
-        ${certificate.businessId}
+        ${escapeHtml(
+          certificate.businessId
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
+      <div class="label">
+        Business Name
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.businessName ||
+          "N/A"
+        )}
+      </div>
+
+    </div>
+
+    <div class="item">
+
       <div class="label">
         Instrument ID
       </div>
+
       <div class="value">
-        ${certificate.instrumentId}
+        ${escapeHtml(
+          certificate.instrumentId
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Instrument Type
       </div>
+
       <div class="value">
-        ${certificate.instrumentType}
+        ${escapeHtml(
+          certificate.instrumentType
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Manufacturer
       </div>
+
       <div class="value">
-        ${certificate.manufacturer}
+        ${escapeHtml(
+          certificate.manufacturer
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Officer
       </div>
+
       <div class="value">
-        ${certificate.officerId}
+        ${escapeHtml(
+          certificate.officerId
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Issue Date
       </div>
+
       <div class="value">
-        ${certificate.issueDate}
+        ${escapeHtml(
+          certificate.issueDate
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Valid Until
       </div>
+
       <div class="value">
-        ${certificate.validUntil}
+        ${escapeHtml(
+          certificate.validUntil
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
       <div class="label">
         Nominal Value
       </div>
+
       <div class="value">
-        ${certificate.nominalValue || "N/A"}
+        ${escapeHtml(
+          certificate.nominalValue ||
+          "N/A"
+        )}
       </div>
+
     </div>
 
     <div class="item">
+
+      <div class="label">
+        Observed Value
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.observedValue ||
+          "N/A"
+        )}
+      </div>
+
+    </div>
+
+    <div class="item">
+
+      <div class="label">
+        Permissible Error
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.permissibleError ||
+          "N/A"
+        )}
+      </div>
+
+    </div>
+
+    <div class="item">
+
+      <div class="label">
+        Error
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.error ||
+          "N/A"
+        )}
+      </div>
+
+    </div>
+
+    <div class="item">
+
+      <div class="label">
+        Absolute Error
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          certificate.absoluteError ||
+          "N/A"
+        )}
+      </div>
+
+    </div>
+
+    <div class="item">
+
       <div class="label">
         Certificate Type
       </div>
+
       <div class="value">
-        ${certificate.certificateType}
+        ${escapeHtml(
+          certificate.certificateType
+        )}
       </div>
+
     </div>
 
   </div>
 
   <div class="status">
-    Certificate Status: ${certificate.status}
+
+    Certificate Status:
+    ${escapeHtml(
+      certificate.status
+    )}
+
   </div>
 
   <div class="verify">
+
     Public Verification:
+
     <br />
-    ${verificationUrl}
+
+    ${escapeHtml(
+      verificationUrl
+    )}
+
   </div>
 
 </div>
 
 <script>
+
 window.onload = function() {
   window.print();
 };
+
 </script>
 
 </body>
@@ -1214,9 +1706,7 @@ window.onload = function() {
 
       <div className="mx-auto max-w-7xl">
 
-        {/* =====================================
-            HEADER
-        ===================================== */}
+        {/* HEADER */}
 
         <div className="mb-8">
 
@@ -1230,9 +1720,7 @@ window.onload = function() {
             className="mb-5 flex items-center gap-2 text-sm font-semibold text-green-700 transition hover:text-green-800"
           >
 
-            <ArrowLeft
-              size={18}
-            />
+            <ArrowLeft size={18} />
 
             Back to Dashboard
 
@@ -1272,56 +1760,40 @@ window.onload = function() {
 
         </div>
 
-        {/* =====================================
-            STATISTICS
-        ===================================== */}
+        {/* STATISTICS */}
 
         <div className="mb-7 grid grid-cols-1 gap-5 sm:grid-cols-3">
 
           <StatCard
             title="Valid Certificates"
-            value={String(
-              validCount
-            )}
+            value={String(validCount)}
             icon={
-              <CheckCircle
-                size={22}
-              />
+              <CheckCircle size={22} />
             }
             iconClass="bg-green-100 text-green-700"
           />
 
           <StatCard
             title="Expiring Soon"
-            value={String(
-              expiringCount
-            )}
+            value={String(expiringCount)}
             icon={
-              <Clock
-                size={22}
-              />
+              <Clock size={22} />
             }
             iconClass="bg-amber-100 text-amber-700"
           />
 
           <StatCard
             title="Expired"
-            value={String(
-              expiredCount
-            )}
+            value={String(expiredCount)}
             icon={
-              <AlertCircle
-                size={22}
-              />
+              <AlertCircle size={22} />
             }
             iconClass="bg-red-100 text-red-700"
           />
 
         </div>
 
-        {/* =====================================
-            SEARCH
-        ===================================== */}
+        {/* SEARCH */}
 
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 
@@ -1337,9 +1809,7 @@ window.onload = function() {
               <input
                 type="text"
                 value={search}
-                onChange={(
-                  event
-                ) =>
+                onChange={(event) =>
                   setSearch(
                     event.target.value
                   )
@@ -1358,22 +1828,17 @@ window.onload = function() {
                   filter === "All"
                 }
                 onClick={() =>
-                  setFilter(
-                    "All"
-                  )
+                  setFilter("All")
                 }
               />
 
               <FilterButton
                 label="Valid"
                 active={
-                  filter ===
-                  "Valid"
+                  filter === "Valid"
                 }
                 onClick={() =>
-                  setFilter(
-                    "Valid"
-                  )
+                  setFilter("Valid")
                 }
               />
 
@@ -1393,13 +1858,10 @@ window.onload = function() {
               <FilterButton
                 label="Expired"
                 active={
-                  filter ===
-                  "Expired"
+                  filter === "Expired"
                 }
                 onClick={() =>
-                  setFilter(
-                    "Expired"
-                  )
+                  setFilter("Expired")
                 }
               />
 
@@ -1415,9 +1877,7 @@ window.onload = function() {
           </div>
         )}
 
-        {/* =====================================
-            TABLE
-        ===================================== */}
+        {/* TABLE */}
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
@@ -1427,9 +1887,7 @@ window.onload = function() {
 
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-green-700">
 
-                <FileCheck2
-                  size={23}
-                />
+                <FileCheck2 size={23} />
 
               </div>
 
@@ -1442,7 +1900,8 @@ window.onload = function() {
                 <p className="mt-1 text-sm text-slate-500">
                   {
                     filteredCertificates.length
-                  } certificates found
+                  }{" "}
+                  certificates found
                 </p>
 
               </div>
@@ -1502,20 +1961,22 @@ window.onload = function() {
               <tbody className="divide-y divide-slate-100">
 
                 {isLoading ? (
+
                   <tr>
+
                     <td
                       colSpan={9}
                       className="px-6 py-16 text-center text-sm text-slate-500"
                     >
                       Loading certificates...
                     </td>
+
                   </tr>
+
                 ) : filteredCertificates.length > 0 ? (
 
                   filteredCertificates.map(
-                    (
-                      certificate
-                    ) => (
+                    (certificate) => (
 
                       <tr
                         key={
@@ -1523,8 +1984,6 @@ window.onload = function() {
                         }
                         className="transition hover:bg-green-50/30"
                       >
-
-                        {/* Certificate */}
 
                         <TableCell>
 
@@ -1539,127 +1998,94 @@ window.onload = function() {
                           >
 
                             <p className="font-bold text-green-700 hover:underline">
-
                               {
                                 certificate.certificateId
                               }
-
                             </p>
 
                             <p className="mt-1 text-xs text-slate-400">
-
                               {
                                 certificate.certificateNumber
                               }
-
                             </p>
 
                           </button>
 
                         </TableCell>
 
-                        {/* Application */}
-
                         <TableCell>
 
                           <p className="font-semibold text-slate-700">
-
                             {
                               certificate.applicationId ||
                               "N/A"
                             }
-
                           </p>
 
                           <p className="mt-1 text-xs text-slate-400">
-
                             {
                               certificate.verificationId
                             }
-
                           </p>
 
                         </TableCell>
-
-                        {/* Business */}
 
                         <TableCell>
 
                           <span className="font-semibold text-slate-700">
-
                             {
+                              certificate.businessName ||
                               certificate.businessId
                             }
-
                           </span>
 
                         </TableCell>
-
-                        {/* Instrument */}
 
                         <TableCell>
 
                           <p className="font-semibold text-slate-800">
-
                             {
                               certificate.instrumentId
                             }
-
                           </p>
 
                           <p className="mt-1 text-xs text-slate-500">
-
                             {
                               certificate.instrumentType
                             }
-
                           </p>
 
                         </TableCell>
 
-                        {/* Officer */}
-
                         <TableCell>
 
                           <span className="text-sm text-slate-600">
-
                             {
                               certificate.officerId
                             }
-
                           </span>
 
                         </TableCell>
 
-                        {/* Issue */}
-
                         <TableCell>
 
                           <span className="text-sm text-slate-600">
-
                             {
                               certificate.issueDate
                             }
-
                           </span>
 
                         </TableCell>
-
-                        {/* Valid */}
 
                         <TableCell>
 
                           <span className="text-sm text-slate-600">
-
                             {
                               certificate.validUntil
                             }
-
                           </span>
 
                         </TableCell>
-
-                        {/* Status */}
 
                         <TableCell>
 
@@ -1670,8 +2096,6 @@ window.onload = function() {
                           />
 
                         </TableCell>
-
-                        {/* Actions */}
 
                         <TableCell>
 
@@ -1688,9 +2112,7 @@ window.onload = function() {
                               className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 transition hover:border-green-300 hover:bg-green-50 hover:text-green-700"
                             >
 
-                              <Eye
-                                size={17}
-                              />
+                              <Eye size={17} />
 
                             </button>
 
@@ -1775,31 +2197,25 @@ window.onload = function() {
 
       </div>
 
-      {/* =====================================
-          DETAILS MODAL
-      ===================================== */}
+      {/* DETAILS MODAL */}
 
       {selectedCertificate && (
 
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4"
           onClick={() =>
-            setSelectedCertificate(
-              null
-            )
+            setSelectedCertificate(null)
           }
         >
 
           <div
             className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
-            onClick={(
-              event
-            ) =>
+            onClick={(event) =>
               event.stopPropagation()
             }
           >
 
-            {/* Header */}
+            {/* HEADER */}
 
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-5">
 
@@ -1810,19 +2226,15 @@ window.onload = function() {
                 </p>
 
                 <h2 className="mt-1 text-2xl font-bold text-slate-900">
-
                   {
                     selectedCertificate.certificateId
                   }
-
                 </h2>
 
                 <p className="mt-1 text-xs text-slate-400">
-
                   {
                     selectedCertificate.certificateNumber
                   }
-
                 </p>
 
               </div>
@@ -1844,7 +2256,7 @@ window.onload = function() {
 
             </div>
 
-            {/* Body */}
+            {/* BODY */}
 
             <div className="p-6 md:p-7">
 
@@ -1890,6 +2302,14 @@ window.onload = function() {
                   label="Business ID"
                   value={
                     selectedCertificate.businessId
+                  }
+                />
+
+                <CertificateDetail
+                  label="Business Name"
+                  value={
+                    selectedCertificate.businessName ||
+                    "N/A"
                   }
                 />
 
@@ -1977,7 +2397,7 @@ window.onload = function() {
 
               </div>
 
-              {/* Status */}
+              {/* STATUS */}
 
               <div className="mt-6 flex flex-col gap-3 rounded-xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
 
@@ -2001,7 +2421,7 @@ window.onload = function() {
 
               </div>
 
-              {/* Remarks */}
+              {/* REMARKS */}
 
               {selectedCertificate.remarks && (
 
@@ -2012,11 +2432,9 @@ window.onload = function() {
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-slate-700">
-
                     {
                       selectedCertificate.remarks
                     }
-
                   </p>
 
                 </div>
@@ -2031,9 +2449,7 @@ window.onload = function() {
 
                   <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-green-700">
 
-                    <QrCode
-                      size={22}
-                    />
+                    <QrCode size={22} />
 
                   </div>
 
@@ -2075,7 +2491,7 @@ window.onload = function() {
 
               </div>
 
-              {/* Actions */}
+              {/* ACTIONS */}
 
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
 
@@ -2107,9 +2523,7 @@ window.onload = function() {
                   className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
 
-                  <Download
-                    size={18}
-                  />
+                  <Download size={18} />
 
                   Download
 
@@ -2125,9 +2539,7 @@ window.onload = function() {
                   className="flex items-center justify-center gap-2 rounded-xl bg-green-700 px-5 py-3 font-semibold text-white shadow-lg shadow-green-700/20 transition hover:bg-green-800"
                 >
 
-                  <Printer
-                    size={18}
-                  />
+                  <Printer size={18} />
 
                   Print Certificate
 
@@ -2216,9 +2628,7 @@ function StatCard({
       <div
         className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${iconClass}`}
       >
-
         {icon}
-
       </div>
 
       <p className="text-sm text-slate-500">
@@ -2256,9 +2666,7 @@ function FilterButton({
           : "bg-slate-100 text-slate-700 hover:bg-green-50 hover:text-green-700"
       }`}
     >
-
       {label}
-
     </button>
   );
 }
@@ -2290,9 +2698,7 @@ function StatusBadge({
     <span
       className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${styles[status]}`}
     >
-
       {status}
-
     </span>
   );
 }

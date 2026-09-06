@@ -1,3 +1,4 @@
+
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -108,7 +109,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/login",
+        "http://172.20.10.2:5000/api/auth/login",
         {
           method: "POST",
           headers: {
@@ -179,7 +180,9 @@ function Login() {
         selectedRole
       ) {
         setError(
-          `This account is registered as ${data.user.role || "another role"}. Please select the correct portal.`
+          `This account is registered as ${
+            data.user.role || "another role"
+          }. Please select the correct portal.`
         );
 
         return;
