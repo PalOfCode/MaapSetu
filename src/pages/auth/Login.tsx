@@ -109,7 +109,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://172.20.10.2:5000/api/auth/login",
+        "https://maapsetu-w1sf.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
