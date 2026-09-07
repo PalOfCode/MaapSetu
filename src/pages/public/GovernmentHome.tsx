@@ -3,59 +3,53 @@ import {
   Bell,
   Building2,
   CalendarDays,
-  ChevronDown,
-  ClipboardCheck,
   FileCheck2,
   FileText,
-  Gavel,
-  Home,
+  Home as HomeIcon,
   Info,
   MapPin,
   Menu,
   Scale,
+  Search,
   ShieldCheck,
   Users,
   X,
 } from "lucide-react";
 
-import {
-  useState,
-  type ReactNode,
-} from "react";
-
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-
-/* =========================================
-   COMPONENT
-========================================= */
 
 function GovernmentHome() {
   const navigate = useNavigate();
-
-  const [mobileMenu, setMobileMenu] =
-    useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
 
   /* =========================================
-     NAVIGATION HELPERS
+     NAVIGATION
   ========================================= */
 
-  const goToLogin = () => {
+  const closeMenu = () => {
     setMobileMenu(false);
+  };
+
+  const goToLogin = () => {
+    closeMenu();
     navigate("/login");
   };
 
   const goToBusinessRegistration = () => {
-    setMobileMenu(false);
+    closeMenu();
     navigate("/business-registration");
   };
 
-  const scrollToSection = (
-    id: string
-  ) => {
-    setMobileMenu(false);
+  const goToCertificateVerification = () => {
+    closeMenu();
+    navigate("/verify");
+  };
 
-    const element =
-      document.getElementById(id);
+  const scrollToSection = (id: string) => {
+    closeMenu();
+
+    const element = document.getElementById(id);
 
     if (element) {
       element.scrollIntoView({
@@ -65,370 +59,272 @@ function GovernmentHome() {
     }
   };
 
-  const goToCertificateVerification =
-    () => {
-      setMobileMenu(false);
-
-      navigate(
-        "/verify/CERT-2701435032"
-      );
-    };
+  /* =========================================
+     UI
+  ========================================= */
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
 
       {/* =====================================
-          TOP GOVERNMENT BAR
+          TOP BAR
       ===================================== */}
 
-      <div className="bg-slate-900 text-white">
-
+      <div className="hidden bg-slate-950 text-white sm:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs md:px-6">
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <span>Government of India</span>
 
-            <span>
-              Government of India
-            </span>
+            <span className="h-3 w-px bg-slate-600" />
 
-            <span className="hidden h-3 w-px bg-slate-500 sm:block" />
-
-            <span className="hidden sm:block">
+            <span className="text-slate-300">
               Ministry of Consumer Affairs
             </span>
-
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
-
+          <div className="flex items-center gap-4 text-slate-300">
             <button
               type="button"
-              onClick={() =>
-                scrollToSection("main-content")
-              }
-              className="transition hover:text-green-300"
+              onClick={() => scrollToSection("main-content")}
+              className="transition hover:text-white"
             >
               Skip to Main Content
             </button>
 
-            <span className="hidden sm:block">
-              |
-            </span>
+            <span>|</span>
 
-            <button
-              type="button"
-              className="transition hover:text-green-300"
-              aria-label="Decrease text size"
-            >
-              A-
-            </button>
-
-            <button
-              type="button"
-              className="transition hover:text-green-300"
-              aria-label="Normal text size"
-            >
-              A
-            </button>
-
-            <button
-              type="button"
-              className="transition hover:text-green-300"
-              aria-label="Increase text size"
-            >
-              A+
-            </button>
-
+            <span>A-</span>
+            <span>A</span>
+            <span>A+</span>
           </div>
 
         </div>
-
       </div>
 
       {/* =====================================
-          OFFICIAL HEADER
+          MOBILE HEADER / DESKTOP HEADER
       ===================================== */}
 
-      <header className="border-b border-slate-200 bg-white">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
 
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 md:px-6">
+        <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
+
+          {/* LOGO */}
 
           <button
             type="button"
-            onClick={() =>
-              navigate("/")
-            }
-            className="flex items-center gap-4 text-left"
+            onClick={() => {
+              closeMenu();
+              navigate("/");
+            }}
+            className="flex items-center gap-3 text-left"
           >
 
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-slate-300 bg-slate-50">
-
-              <Scale
-                size={34}
-                className="text-green-700"
-              />
-
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700 md:h-12 md:w-12">
+              <Scale size={25} />
             </div>
 
             <div>
-
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">
                 Government of India
               </p>
 
-              <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
-                Department of Legal Metrology
+              <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
+                MaapSetu
               </h1>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Automated Legal Metrology Verification Engine
+              <p className="hidden text-xs text-slate-500 sm:block">
+                Digital Legal Metrology Portal
               </p>
-
             </div>
 
           </button>
 
-          <div className="hidden items-center gap-6 lg:flex">
+          {/* DESKTOP ACTIONS */}
 
-            <div className="text-right">
+          <div className="hidden items-center gap-3 md:flex">
 
-              <p className="text-xs text-slate-400">
-                Official Digital Portal
-              </p>
+            <button
+              type="button"
+              onClick={goToCertificateVerification}
+              className="flex items-center gap-2 rounded-lg border border-green-700 px-4 py-2.5 text-sm font-semibold text-green-700 transition hover:bg-green-50"
+            >
+              <ShieldCheck size={17} />
+              Verify Certificate
+            </button>
 
-              <p className="mt-1 text-sm font-semibold text-slate-700">
-                Legal Metrology Services
-              </p>
-
-            </div>
-
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-green-200 bg-green-50">
-
-              <ShieldCheck
-                size={29}
-                className="text-green-700"
-              />
-
-            </div>
+            <button
+              type="button"
+              onClick={goToLogin}
+              className="rounded-lg bg-green-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800"
+            >
+              Login
+            </button>
 
           </div>
 
+          {/* MOBILE MENU BUTTON */}
+
+          <button
+            type="button"
+            onClick={() => setMobileMenu((value) => !value)}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-800 md:hidden"
+            aria-label="Toggle menu"
+          >
+            {mobileMenu ? (
+              <X size={23} />
+            ) : (
+              <Menu size={23} />
+            )}
+          </button>
+
         </div>
 
-      </header>
+        {/* =====================================
+            DESKTOP NAVIGATION
+        ===================================== */}
 
-      {/* =====================================
-          NAVIGATION
-      ===================================== */}
+        <nav className="hidden border-t border-green-800 bg-green-700 md:block">
 
-      <nav className="border-b border-green-800 bg-green-700 text-white">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
 
-        <div className="mx-auto max-w-7xl px-4 md:px-6">
-
-          <div className="flex items-center justify-between">
-
-            {/* Desktop Navigation */}
-
-            <div className="hidden items-center md:flex">
+            <div className="flex items-center">
 
               <NavItem
-                icon={
-                  <Home size={17} />
-                }
+                icon={<HomeIcon size={16} />}
                 label="Home"
                 active
-                onClick={() =>
-                  navigate("/")
-                }
+                onClick={() => navigate("/")}
               />
 
               <NavItem
-                label="About Department"
-                dropdown
-                onClick={() =>
-                  scrollToSection(
-                    "about-department"
-                  )
-                }
+                label="About"
+                onClick={() => scrollToSection("about-department")}
               />
 
               <NavItem
                 label="Services"
-                dropdown
-                onClick={() =>
-                  scrollToSection(
-                    "services"
-                  )
-                }
+                onClick={() => scrollToSection("services")}
               />
 
               <NavItem
                 label="Verification"
-                dropdown
-                onClick={
-                  goToCertificateVerification
-                }
-              />
-
-              <NavItem
-                label="Certificates"
-                onClick={() =>
-                  navigate(
-                    "/merchant/certificates"
-                  )
-                }
+                onClick={goToCertificateVerification}
               />
 
               <NavItem
                 label="Notices"
-                onClick={() =>
-                  scrollToSection(
-                    "notice"
-                  )
-                }
+                onClick={() => scrollToSection("notice")}
               />
 
               <NavItem
                 label="Contact"
-                onClick={() =>
-                  scrollToSection(
-                    "contact"
-                  )
-                }
+                onClick={() => scrollToSection("contact")}
               />
 
             </div>
 
-            {/* Mobile Menu Button */}
-
             <button
               type="button"
-              onClick={() =>
-                setMobileMenu(
-                  (value) => !value
-                )
-              }
-              className="flex items-center gap-2 py-4 md:hidden"
-              aria-label="Toggle menu"
+              onClick={goToBusinessRegistration}
+              className="my-2 rounded-lg bg-white px-4 py-2 text-sm font-bold text-green-700 transition hover:bg-green-50"
             >
-
-              {mobileMenu ? (
-                <X size={21} />
-              ) : (
-                <Menu size={21} />
-              )}
-
-              Menu
-
+              Register Business
             </button>
-
-            {/* Desktop Actions */}
-
-            <div className="hidden items-center gap-2 md:flex">
-
-              <button
-                type="button"
-                onClick={goToLogin}
-                className="rounded-lg border border-white/30 px-4 py-2 text-sm font-semibold transition hover:bg-white/10"
-              >
-                Login
-              </button>
-
-              <button
-                type="button"
-                onClick={
-                  goToBusinessRegistration
-                }
-                className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-50"
-              >
-                Register
-              </button>
-
-            </div>
 
           </div>
 
-          {/* Mobile Navigation */}
+        </nav>
 
-          {mobileMenu && (
+        {/* =====================================
+            MOBILE MENU
+        ===================================== */}
 
-            <div className="border-t border-green-600 py-3 md:hidden">
+        {mobileMenu && (
+
+          <div className="border-t border-slate-200 bg-white shadow-xl md:hidden">
+
+            <div className="mx-auto max-w-7xl px-4 py-4">
+
+              <div className="mb-4 rounded-2xl bg-green-50 p-4">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-green-700 shadow-sm">
+                    <Scale size={23} />
+                  </div>
+
+                  <div>
+                    <p className="font-bold text-slate-900">
+                      MaapSetu
+                    </p>
+
+                    <p className="text-xs text-slate-500">
+                      Fair Measurement. Stronger India.
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
 
               <div className="grid gap-1">
 
                 <MobileNavItem
+                  icon={<HomeIcon size={18} />}
                   label="Home"
-                  onClick={() =>
-                    navigate("/")
-                  }
+                  active
+                  onClick={() => navigate("/")}
                 />
 
                 <MobileNavItem
+                  icon={<Info size={18} />}
                   label="About Department"
-                  onClick={() =>
-                    scrollToSection(
-                      "about-department"
-                    )
-                  }
+                  onClick={() => scrollToSection("about-department")}
                 />
 
                 <MobileNavItem
+                  icon={<FileText size={18} />}
                   label="Services"
-                  onClick={() =>
-                    scrollToSection(
-                      "services"
-                    )
-                  }
+                  onClick={() => scrollToSection("services")}
                 />
 
                 <MobileNavItem
-                  label="Verification"
-                  onClick={
-                    goToCertificateVerification
-                  }
+                  icon={<Search size={18} />}
+                  label="Verify Certificate"
+                  active
+                  onClick={goToCertificateVerification}
                 />
 
                 <MobileNavItem
-                  label="Certificates"
-                  onClick={() =>
-                    navigate(
-                      "/merchant/certificates"
-                    )
-                  }
-                />
-
-                <MobileNavItem
+                  icon={<Bell size={18} />}
                   label="Notices"
-                  onClick={() =>
-                    scrollToSection(
-                      "notice"
-                    )
-                  }
+                  onClick={() => scrollToSection("notice")}
                 />
 
                 <MobileNavItem
+                  icon={<MapPin size={18} />}
                   label="Contact"
-                  onClick={() =>
-                    scrollToSection(
-                      "contact"
-                    )
-                  }
+                  onClick={() => scrollToSection("contact")}
                 />
+
+              </div>
+
+              <div className="mt-4 grid gap-2">
 
                 <button
                   type="button"
                   onClick={goToLogin}
-                  className="mt-2 rounded-lg bg-white px-4 py-3 text-left text-sm font-semibold text-green-700"
+                  className="rounded-xl border border-green-700 px-4 py-3.5 text-left text-sm font-bold text-green-700"
                 >
                   Login
                 </button>
 
                 <button
                   type="button"
-                  onClick={
-                    goToBusinessRegistration
-                  }
-                  className="rounded-lg bg-green-900 px-4 py-3 text-left text-sm font-semibold text-white"
+                  onClick={goToBusinessRegistration}
+                  className="rounded-xl bg-green-700 px-4 py-3.5 text-left text-sm font-bold text-white"
                 >
                   Business Registration
                 </button>
@@ -437,11 +333,11 @@ function GovernmentHome() {
 
             </div>
 
-          )}
+          </div>
 
-        </div>
+        )}
 
-      </nav>
+      </header>
 
       {/* =====================================
           MAIN CONTENT
@@ -453,162 +349,174 @@ function GovernmentHome() {
             HERO
         ===================================== */}
 
-        <section className="relative overflow-hidden bg-gradient-to-r from-green-50 via-white to-amber-50">
+        <section className="relative overflow-hidden bg-gradient-to-b from-green-50 via-white to-white">
 
-          <div className="absolute inset-0 opacity-30">
+          <div className="absolute -left-20 top-10 h-52 w-52 rounded-full bg-green-200/40 blur-3xl" />
 
-            <div className="absolute left-0 top-0 h-48 w-48 rounded-full bg-green-200 blur-3xl" />
+          <div className="absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-amber-100/50 blur-3xl" />
 
-            <div className="absolute bottom-0 right-0 h-56 w-56 rounded-full bg-amber-200 blur-3xl" />
+          <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-8 sm:pb-14 sm:pt-12 md:px-6 md:py-20">
+
+            <div className="grid items-center gap-10 lg:grid-cols-2">
+
+              {/* HERO TEXT */}
+
+              <div>
+
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-green-200 bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-green-700 shadow-sm sm:px-4 sm:text-xs">
+                  <ShieldCheck size={15} />
+                  Official Legal Metrology Portal
+                </div>
+
+                <h2 className="max-w-xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+
+                  Fair Measurement
+
+                  <span className="block text-green-700">
+                    Stronger India
+                  </span>
+
+                </h2>
+
+                <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
+
+                  Digital verification for weighing and measuring
+                  instruments through a secure and transparent
+                  Legal Metrology platform.
+
+                </p>
+
+                {/* MOBILE PRIMARY BUTTON */}
+
+                <div className="mt-7 grid gap-3 sm:flex">
+
+                  <button
+                    type="button"
+                    onClick={goToCertificateVerification}
+                    className="flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-green-700 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-green-700/20 transition hover:bg-green-800 active:scale-[0.98]"
+                  >
+                    Verify Certificate
+                    <ArrowRight size={18} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={goToBusinessRegistration}
+                    className="flex min-h-[52px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-green-300 hover:bg-green-50 active:scale-[0.98]"
+                  >
+                    Register Instrument
+                    <FileText size={18} />
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* HERO CARD */}
+
+              <div className="lg:pl-8">
+
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xl sm:p-7">
+
+                  <div className="flex items-center gap-4">
+
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700">
+                      <Scale size={29} />
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Digital Governance
+                      </p>
+
+                      <h3 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
+                        ALMVE Portal
+                      </h3>
+                    </div>
+
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
+
+                    <QuickStat
+                      label="Registered"
+                      value="25,480"
+                    />
+
+                    <QuickStat
+                      label="Verified"
+                      value="18,910"
+                    />
+
+                    <QuickStat
+                      label="Inspectors"
+                      value="125"
+                    />
+
+                    <QuickStat
+                      label="Certificates"
+                      value="18,910"
+                    />
+
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-green-50 p-4">
+
+                    <div className="flex items-start gap-3">
+
+                      <ShieldCheck
+                        size={20}
+                        className="mt-0.5 shrink-0 text-green-700"
+                      />
+
+                      <p className="text-sm leading-6 text-slate-600">
+                        All verification activities are digitally
+                        recorded to improve transparency and
+                        citizen access to services.
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
 
           </div>
 
-          <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:px-6 md:py-20">
+        </section>
 
-            {/* Hero Left */}
+        {/* =====================================
+            CITIZEN QUICK ACCESS
+        ===================================== */}
 
-            <div>
+        <section className="relative z-10 mx-auto -mt-2 max-w-7xl px-4 pb-8 md:px-6">
 
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-green-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-green-700 shadow-sm">
+          <div className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg md:grid-cols-3">
 
-                <ShieldCheck size={15} />
+            <QuickAccessCard
+              icon={<ShieldCheck size={24} />}
+              title="For Citizens"
+              description="Verify certificates instantly"
+              onClick={goToCertificateVerification}
+            />
 
-                Official Legal Metrology Portal
+            <QuickAccessCard
+              icon={<Building2 size={24} />}
+              title="For Businesses"
+              description="Register and manage instruments"
+              onClick={goToBusinessRegistration}
+            />
 
-              </div>
-
-              <h2 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
-
-                Ensuring Accuracy,
-
-                <span className="block text-green-700">
-                  Fair Trade & Trust
-                </span>
-
-              </h2>
-
-              <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 md:text-lg">
-
-                A unified digital platform for registration,
-                verification, inspection and certification of
-                weighing and measuring instruments.
-
-              </p>
-
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-
-                <button
-                  type="button"
-                  onClick={
-                    goToBusinessRegistration
-                  }
-                  className="flex items-center justify-center gap-2 rounded-xl bg-green-700 px-6 py-3.5 font-semibold text-white shadow-lg shadow-green-700/20 transition hover:bg-green-800"
-                >
-
-                  Register Instrument
-
-                  <ArrowRight
-                    size={18}
-                  />
-
-                </button>
-
-                <button
-                  type="button"
-                  onClick={
-                    goToCertificateVerification
-                  }
-                  className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 font-semibold text-slate-700 transition hover:border-green-300 hover:bg-green-50"
-                >
-
-                  Verify Certificate
-
-                  <FileCheck2
-                    size={18}
-                  />
-
-                </button>
-
-              </div>
-
-            </div>
-
-            {/* Hero Panel */}
-
-            <div className="relative">
-
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
-
-                <div className="mb-5 flex items-center justify-between">
-
-                  <div>
-
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                      Digital Governance
-                    </p>
-
-                    <h3 className="mt-1 text-2xl font-bold text-slate-900">
-                      ALMVE Portal
-                    </h3>
-
-                  </div>
-
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-700">
-
-                    <Scale size={25} />
-
-                  </div>
-
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-
-                  <QuickStat
-                    label="Registered"
-                    value="25,480"
-                  />
-
-                  <QuickStat
-                    label="Verified"
-                    value="18,910"
-                  />
-
-                  <QuickStat
-                    label="Inspectors"
-                    value="125"
-                  />
-
-                  <QuickStat
-                    label="Certificates"
-                    value="18,910"
-                  />
-
-                </div>
-
-                <div className="mt-5 rounded-xl bg-slate-50 p-4">
-
-                  <div className="flex items-start gap-3">
-
-                    <Info
-                      size={19}
-                      className="mt-0.5 shrink-0 text-green-700"
-                    />
-
-                    <p className="text-sm leading-6 text-slate-600">
-
-                      All verification activities are digitally
-                      recorded to improve transparency and
-                      citizen access to services.
-
-                    </p>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
+            <QuickAccessCard
+              icon={<Users size={24} />}
+              title="For Inspectors"
+              description="Access field verification tools"
+              onClick={goToLogin}
+            />
 
           </div>
 
@@ -623,41 +531,25 @@ function GovernmentHome() {
           className="border-y border-amber-200 bg-amber-50"
         >
 
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:px-6">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center md:px-6">
 
             <div className="flex items-center gap-2 font-bold text-amber-800">
-
               <Bell size={18} />
-
               Important Notice
-
             </div>
 
-            <div className="hidden h-5 w-px bg-amber-300 md:block" />
-
-            <p className="text-sm text-amber-900">
-
+            <p className="text-sm leading-6 text-amber-900">
               Online verification and certification services are
               available through the ALMVE portal.
-
             </p>
 
             <button
               type="button"
-              onClick={() =>
-                scrollToSection(
-                  "services"
-                )
-              }
-              className="ml-auto flex items-center gap-1 text-sm font-semibold text-green-700 hover:text-green-900"
+              onClick={() => scrollToSection("services")}
+              className="flex items-center gap-1 text-sm font-bold text-green-700 sm:ml-auto"
             >
-
               View Services
-
-              <ArrowRight
-                size={15}
-              />
-
+              <ArrowRight size={15} />
             </button>
 
           </div>
@@ -670,7 +562,7 @@ function GovernmentHome() {
 
         <section
           id="services"
-          className="mx-auto max-w-7xl px-4 py-14 md:px-6"
+          className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20"
         >
 
           <SectionHeading
@@ -679,60 +571,34 @@ function GovernmentHome() {
             description="Access important Legal Metrology services through a single digital platform."
           />
 
-          <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
             <ServiceCard
-              icon={
-                <FileText size={26} />
-              }
+              icon={<FileText size={25} />}
               title="Instrument Registration"
               description="Register weighing and measuring instruments online."
-              action={
-                goToBusinessRegistration
-              }
+              action={goToBusinessRegistration}
             />
 
             <ServiceCard
-              icon={
-                <ClipboardCheck
-                  size={26}
-                />
-              }
-              title="Verification"
-              description="Submit and track instrument verification applications."
-              action={() =>
-                navigate(
-                  "/merchant/applications"
-                )
-              }
-            />
-
-            <ServiceCard
-              icon={
-                <FileCheck2
-                  size={26}
-                />
-              }
+              icon={<FileCheck2 size={25} />}
               title="Certificate Verification"
               description="Verify the authenticity and validity of certificates."
-              action={
-                goToCertificateVerification
-              }
+              action={goToCertificateVerification}
             />
 
             <ServiceCard
-              icon={
-                <CalendarDays
-                  size={26}
-                />
-              }
+              icon={<CalendarDays size={25} />}
               title="Appointments"
               description="View and manage scheduled verification appointments."
-              action={() =>
-                navigate(
-                  "/merchant/appointments"
-                )
-              }
+              action={() => navigate("/merchant/appointments")}
+            />
+
+            <ServiceCard
+              icon={<Search size={25} />}
+              title="Application Tracking"
+              description="Submit and track instrument verification applications."
+              action={() => navigate("/merchant/applications")}
             />
 
           </div>
@@ -748,40 +614,32 @@ function GovernmentHome() {
           className="bg-slate-50"
         >
 
-          <div className="mx-auto max-w-7xl px-4 py-14 md:px-6">
+          <div className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
 
             <SectionHeading
               eyebrow="About the Department"
-              title="Department Highlights"
+              title="Fair Measurement. Stronger India."
               description="Supporting fair trade, consumer protection and reliable measurements."
             />
 
-            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="mt-8 grid gap-5 lg:grid-cols-3">
 
               <HighlightCard
-                icon={
-                  <ShieldCheck
-                    size={28}
-                  />
-                }
+                icon={<ShieldCheck size={27} />}
                 title="Our Vision"
                 description="To promote accurate, reliable and standardised weighing and measuring practices through transparent digital services."
               />
 
               <HighlightCard
-                icon={
-                  <Scale size={28} />
-                }
+                icon={<Scale size={27} />}
                 title="Legal Metrology"
                 description="Ensuring measuring instruments used in commercial transactions meet prescribed standards and verification requirements."
               />
 
               <HighlightCard
-                icon={
-                  <Gavel size={28} />
-                }
-                title="Inspection & Enforcement"
-                description="Supporting inspections, detection of violations and appropriate corrective actions for fair marketplace practices."
+                icon={<FileCheck2 size={27} />}
+                title="Inspection & Verification"
+                description="Supporting inspections, verification and certification for fair marketplace practices."
               />
 
             </div>
@@ -794,7 +652,7 @@ function GovernmentHome() {
             QUICK LINKS
         ===================================== */}
 
-        <section className="mx-auto max-w-7xl px-4 py-14 md:px-6">
+        <section className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
 
           <SectionHeading
             eyebrow="Public Information"
@@ -802,62 +660,36 @@ function GovernmentHome() {
             description="Important resources for merchants, inspectors and citizens."
           />
 
-          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
             <QuickLink
-              icon={
-                <Building2
-                  size={22}
-                />
-              }
+              icon={<Building2 size={22} />}
               title="Department"
               description="About Legal Metrology"
-              action={() =>
-                scrollToSection(
-                  "about-department"
-                )
-              }
+              action={() => scrollToSection("about-department")}
             />
 
             <QuickLink
-              icon={
-                <FileText
-                  size={22}
-                />
-              }
+              icon={<FileText size={22} />}
               title="Acts & Rules"
               description="Legal documents and regulations"
               action={() =>
-                alert(
-                  "Acts & Rules module will be connected next."
-                )
+                alert("Acts & Rules module will be connected next.")
               }
             />
 
             <QuickLink
-              icon={
-                <Bell size={22} />
-              }
+              icon={<Bell size={22} />}
               title="Public Notices"
               description="Latest department updates"
-              action={() =>
-                scrollToSection(
-                  "notice"
-                )
-              }
+              action={() => scrollToSection("notice")}
             />
 
             <QuickLink
-              icon={
-                <Users size={22} />
-              }
+              icon={<Users size={22} />}
               title="Contact Offices"
               description="Regional office information"
-              action={() =>
-                scrollToSection(
-                  "contact"
-                )
-              }
+              action={() => scrollToSection("contact")}
             />
 
           </div>
@@ -870,9 +702,9 @@ function GovernmentHome() {
 
         <section className="bg-green-800 text-white">
 
-          <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
+          <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-16">
 
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
 
               <GovernmentStat
                 label="Registered Instruments"
@@ -913,119 +745,86 @@ function GovernmentHome() {
 
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-2 md:px-6 lg:grid-cols-4">
 
-          {/* Brand */}
+          {/* BRAND */}
 
           <div>
 
             <div className="flex items-center gap-3">
 
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-700 text-white">
-
                 <Scale size={22} />
-
               </div>
 
               <div>
-
                 <p className="font-bold text-white">
-                  ALMVE
+                  MaapSetu
                 </p>
 
                 <p className="text-xs text-slate-400">
                   Legal Metrology Portal
                 </p>
-
               </div>
 
             </div>
 
             <p className="mt-4 text-sm leading-6 text-slate-400">
-
               Automated Legal Metrology Verification Engine
               for transparent and efficient digital verification
               services.
-
             </p>
 
           </div>
 
-          {/* Useful Links */}
+          {/* USEFUL LINKS */}
 
           <FooterColumn
             title="Useful Links"
             items={[
               {
-                label:
-                  "About Department",
-                action: () =>
-                  scrollToSection(
-                    "about-department"
-                  ),
+                label: "About Department",
+                action: () => scrollToSection("about-department"),
               },
               {
-                label:
-                  "Services",
-                action: () =>
-                  scrollToSection(
-                    "services"
-                  ),
+                label: "Services",
+                action: () => scrollToSection("services"),
               },
               {
-                label:
-                  "Public Notices",
-                action: () =>
-                  scrollToSection(
-                    "notice"
-                  ),
+                label: "Public Notices",
+                action: () => scrollToSection("notice"),
               },
               {
-                label:
-                  "Acts & Rules",
+                label: "Acts & Rules",
                 action: () =>
-                  alert(
-                    "Acts & Rules module will be connected next."
-                  ),
+                  alert("Acts & Rules module will be connected next."),
               },
             ]}
           />
 
-          {/* Citizen Services */}
+          {/* CITIZEN SERVICES */}
 
           <FooterColumn
             title="Citizen Services"
             items={[
               {
-                label:
-                  "Register Instrument",
-                action:
-                  goToBusinessRegistration,
+                label: "Register Instrument",
+                action: goToBusinessRegistration,
               },
               {
-                label:
-                  "Track Application",
-                action: () =>
-                  navigate(
-                    "/merchant/applications"
-                  ),
+                label: "Track Application",
+                action: () => navigate("/merchant/applications"),
               },
               {
-                label:
-                  "Verify Certificate",
-                action:
-                  goToCertificateVerification,
+                label: "Verify Certificate",
+                action: goToCertificateVerification,
               },
               {
-                label:
-                  "Appointments",
-                action: () =>
-                  navigate(
-                    "/merchant/appointments"
-                  ),
+                label: "Appointments",
+                action: () => navigate("/merchant/appointments"),
               },
             ]}
           />
 
-          {/* Contact */}
+          {/* CONTACT */}
 
           <div>
 
@@ -1036,7 +835,6 @@ function GovernmentHome() {
             <div className="mt-4 space-y-4 text-sm">
 
               <div className="flex gap-3">
-
                 <MapPin
                   size={17}
                   className="mt-0.5 shrink-0"
@@ -1045,11 +843,9 @@ function GovernmentHome() {
                 <span>
                   Department of Legal Metrology
                 </span>
-
               </div>
 
               <div className="flex gap-3">
-
                 <Users
                   size={17}
                   className="mt-0.5 shrink-0"
@@ -1058,7 +854,6 @@ function GovernmentHome() {
                 <span>
                   Government Administration
                 </span>
-
               </div>
 
             </div>
@@ -1072,7 +867,7 @@ function GovernmentHome() {
           <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between md:px-6">
 
             <p>
-              © 2026 ALMVE. All rights reserved.
+              © 2026 MaapSetu. All rights reserved.
             </p>
 
             <p>
@@ -1090,41 +885,32 @@ function GovernmentHome() {
 }
 
 /* =========================================
-   NAV ITEM
+   DESKTOP NAV ITEM
 ========================================= */
 
 function NavItem({
   label,
   icon,
   active = false,
-  dropdown = false,
   onClick,
 }: {
   label: string;
   icon?: ReactNode;
   active?: boolean;
-  dropdown?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-4 text-sm font-semibold transition ${
+      className={`flex items-center gap-2 px-4 py-3.5 text-sm font-semibold transition ${
         active
           ? "bg-green-800"
           : "hover:bg-green-800"
       }`}
     >
-
       {icon}
-
       {label}
-
-      {dropdown && (
-        <ChevronDown size={15} />
-      )}
-
     </button>
   );
 }
@@ -1135,18 +921,74 @@ function NavItem({
 
 function MobileNavItem({
   label,
+  icon,
+  active = false,
   onClick,
 }: {
   label: string;
+  icon?: ReactNode;
+  active?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition hover:bg-green-800"
+      className={`flex min-h-[48px] items-center gap-3 rounded-xl px-4 text-left text-sm font-semibold transition ${
+        active
+          ? "bg-green-50 text-green-700"
+          : "text-slate-700 hover:bg-slate-50"
+      }`}
     >
+      {icon}
       {label}
+    </button>
+  );
+}
+
+/* =========================================
+   QUICK ACCESS CARD
+========================================= */
+
+function QuickAccessCard({
+  icon,
+  title,
+  description,
+  onClick,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex items-center gap-4 border-b border-slate-100 p-4 text-left transition hover:bg-green-50 md:border-b-0 md:border-r md:last:border-r-0"
+    >
+
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700 transition group-hover:bg-green-700 group-hover:text-white">
+        {icon}
+      </div>
+
+      <div className="min-w-0 flex-1">
+
+        <p className="font-bold text-slate-900">
+          {title}
+        </p>
+
+        <p className="mt-0.5 text-xs text-slate-500">
+          {description}
+        </p>
+
+      </div>
+
+      <ArrowRight
+        size={17}
+        className="shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-green-700"
+      />
+
     </button>
   );
 }
@@ -1167,17 +1009,17 @@ function SectionHeading({
   return (
     <div className="text-center">
 
-      <p className="text-sm font-bold uppercase tracking-wider text-green-700">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-green-700 sm:text-sm">
         {eyebrow}
       </p>
 
-      <h2 className="mt-2 text-3xl font-bold text-slate-900">
+      <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
         {title}
       </h2>
 
-      <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-amber-500" />
+      <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-amber-500" />
 
-      <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-500 md:text-base">
+      <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
         {description}
       </p>
 
@@ -1197,13 +1039,13 @@ function QuickStat({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
 
       <p className="text-xs text-slate-500">
         {label}
       </p>
 
-      <p className="mt-1 text-2xl font-bold text-slate-900">
+      <p className="mt-1 text-xl font-extrabold text-slate-900 sm:text-2xl">
         {value}
       </p>
 
@@ -1230,13 +1072,11 @@ function ServiceCard({
     <button
       type="button"
       onClick={action}
-      className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-green-200 hover:shadow-lg"
+      className="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:border-green-200 hover:shadow-lg active:scale-[0.99] sm:p-6"
     >
 
       <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-700 transition group-hover:bg-green-700 group-hover:text-white">
-
         {icon}
-
       </div>
 
       <h3 className="text-lg font-bold text-slate-900">
@@ -1247,12 +1087,9 @@ function ServiceCard({
         {description}
       </p>
 
-      <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-green-700">
-
+      <div className="mt-5 flex items-center gap-2 text-sm font-bold text-green-700">
         Access Service
-
         <ArrowRight size={16} />
-
       </div>
 
     </button>
@@ -1273,12 +1110,10 @@ function HighlightCard({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
 
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 text-green-700">
-
         {icon}
-
       </div>
 
       <h3 className="mt-5 text-xl font-bold text-slate-900">
@@ -1312,13 +1147,11 @@ function QuickLink({
     <button
       type="button"
       onClick={action}
-      className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 text-left transition hover:border-green-300 hover:bg-green-50"
+      className="flex min-h-[88px] items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-green-300 hover:bg-green-50"
     >
 
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
-
         {icon}
-
       </div>
 
       <div>
@@ -1351,11 +1184,11 @@ function GovernmentStat({
   return (
     <div className="text-center">
 
-      <p className="text-3xl font-bold md:text-4xl">
+      <p className="text-2xl font-extrabold sm:text-3xl md:text-4xl">
         {value}
       </p>
 
-      <p className="mt-2 text-sm text-green-100">
+      <p className="mt-2 text-xs leading-5 text-green-100 sm:text-sm">
         {label}
       </p>
 
@@ -1386,22 +1219,16 @@ function FooterColumn({
 
       <div className="mt-4 space-y-3">
 
-        {items.map(
-          (item) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={
-                item.action
-              }
-              className="block text-left text-sm text-slate-400 transition hover:text-white"
-            >
-
-              {item.label}
-
-            </button>
-          )
-        )}
+        {items.map((item) => (
+          <button
+            key={item.label}
+            type="button"
+            onClick={item.action}
+            className="block text-left text-sm text-slate-400 transition hover:text-white"
+          >
+            {item.label}
+          </button>
+        ))}
 
       </div>
 
