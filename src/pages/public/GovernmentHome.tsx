@@ -1004,27 +1004,7 @@ function SectionHeading({
    QUICK STAT
 ========================================= */
 
-function QuickStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
 
-      <p className="text-xs text-slate-500">
-        {label}
-      </p>
-
-      <p className="mt-1 text-xl font-extrabold text-slate-900 sm:text-2xl">
-        {value}
-      </p>
-
-    </div>
-  );
-}
 
 /* =========================================
    SERVICE CARD
