@@ -4068,10 +4068,13 @@ app.get(
        * ALMVE/2026/739580
        */
 
+      // if (/^CERT-\d+$/.test(rawId)) {
+      //   const certificateId = Number(
+      //     rawId.replace("CERT-", "")
+      //   );
       if (/^CERT-\d+$/.test(rawId)) {
-        const certificateId = Number(
-          rawId.replace("CERT-", "")
-        );
+       /* Keep CERT IDs as strings to avoid PostgreSQL INTEGER overflow. */
+        const certificateId = rawId.replace("CERT-", "");
 
         result = await pool.query(
           `
@@ -4137,7 +4140,8 @@ app.get(
           LEFT JOIN observations o
             ON o.verification_id = c.verification_id
 
-          WHERE c.id = $1
+          
+          WHERE CAST(c.id AS TEXT) = $1
 
           ORDER BY o.id ASC
 
@@ -4241,9 +4245,14 @@ app.get(
         req.headers["x-forwarded-proto"] ||
         req.protocol;
 
+      // const pdfUrl =
+      //   `${protocol}://${host}` +
+      //   `/api/public/certificates/CERT-${row.id}/pdf`;
       const pdfUrl =
-        `${protocol}://${host}` +
-        `/api/public/certificates/CERT-${row.id}/pdf`;
+       `${protocol}://${host}` +
+       `/api/public/certificates/${encodeURIComponent(
+        row.certificate_number
+        )}/pdf`;
 
       /* -----------------------------------------------------
          CREATE QR CODE
