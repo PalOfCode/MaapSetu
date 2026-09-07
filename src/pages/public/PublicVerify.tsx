@@ -2739,10 +2739,255 @@
 // }
 
 // export default Certificates;
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+// case2
+// import { useEffect, useState } from "react";
+// import { useParams } from "react-router-dom";
 
-const BACKEND_URL = "https://maapsetu-w1sf.onrender.com";
+// const BACKEND_URL = "https://maapsetu-w1sf.onrender.com";
+
+// interface Certificate {
+//   certificateId?: string;
+//   certificateNumber?: string;
+//   verificationId?: string;
+//   applicationId?: string;
+//   businessName?: string;
+//   instrumentType?: string;
+//   instrumentId?: string;
+//   status?: string;
+//   issueDate?: string;
+//   validUntil?: string;
+// }
+
+// export default function PublicVerify() {
+//   const { certificateId } = useParams<{ certificateId: string }>();
+
+//   const [certificate, setCertificate] =
+//     useState<Certificate | null>(null);
+
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState("");
+
+//   useEffect(() => {
+//     const fetchCertificate = async () => {
+//       if (!certificateId) {
+//         setError("Certificate ID is missing.");
+//         setLoading(false);
+//         return;
+//       }
+
+//       try {
+//         const response = await fetch(
+//           `${BACKEND_URL}/api/public/certificates/${encodeURIComponent(
+//             certificateId
+//           )}`
+//         );
+
+//         const data = await response.json();
+
+//         if (!response.ok || !data.success) {
+//           throw new Error(
+//             data.message || "Certificate could not be verified."
+//           );
+//         }
+
+//         setCertificate(data.certificate);
+//       } catch (err) {
+//         console.error("Certificate verification error:", err);
+
+//         setError(
+//           err instanceof Error
+//             ? err.message
+//             : "Certificate could not be verified."
+//         );
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchCertificate();
+//   }, [certificateId]);
+
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center bg-slate-100">
+//         <div className="text-center">
+//           <div className="text-xl font-semibold text-slate-800">
+//             Verifying certificate...
+//           </div>
+
+//           <p className="mt-2 text-slate-500">
+//             Please wait.
+//           </p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   if (error || !certificate) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center bg-slate-100 p-6">
+//         <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm text-center">
+//           <h1 className="text-2xl font-bold text-red-600">
+//             Certificate Verification Failed
+//           </h1>
+
+//           <p className="mt-4 text-slate-600">
+//             {error || "Certificate not found."}
+//           </p>
+
+//           <p className="mt-4 text-sm text-slate-400">
+//             Certificate ID: {certificateId}
+//           </p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-slate-100 p-6 md:p-10">
+//       <div className="mx-auto max-w-3xl">
+
+//         {/* Header */}
+//         <div className="mb-6 text-center">
+//           <p className="text-sm font-semibold text-emerald-700">
+//             ALMVE
+//           </p>
+
+//           <h1 className="mt-2 text-3xl font-bold text-slate-900">
+//             Certificate Verification
+//           </h1>
+
+//           <p className="mt-2 text-slate-500">
+//             Official certificate verification
+//           </p>
+//         </div>
+
+//         {/* Certificate */}
+//         <div className="rounded-2xl bg-white p-6 md:p-8 shadow-sm">
+
+//           {/* Valid status */}
+//           <div className="mb-6 flex justify-center">
+//             <div className="rounded-full bg-emerald-100 px-5 py-2 text-sm font-semibold text-emerald-700">
+//               ✓ {certificate.status || "Valid"}
+//             </div>
+//           </div>
+
+//           <div className="border-b pb-6">
+//             <p className="text-sm text-slate-500">
+//               Certificate Number
+//             </p>
+
+//             <p className="mt-1 text-2xl font-bold text-slate-900">
+//               {certificate.certificateNumber || "—"}
+//             </p>
+//           </div>
+
+//           <div className="mt-6 grid gap-6 md:grid-cols-2">
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Certificate ID
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.certificateId || "—"}
+//               </p>
+//             </div>
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Verification ID
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.verificationId || "—"}
+//               </p>
+//             </div>
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Application ID
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.applicationId || "—"}
+//               </p>
+//             </div>
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Business Name
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.businessName || "—"}
+//               </p>
+//             </div>
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Instrument Type
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.instrumentType || "—"}
+//               </p>
+//             </div>
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Instrument ID
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.instrumentId || "—"}
+//               </p>
+//             </div>
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Issue Date
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.issueDate || "—"}
+//               </p>
+//             </div>
+
+//             <div>
+//               <p className="text-sm text-slate-500">
+//                 Valid Until
+//               </p>
+
+//               <p className="mt-1 font-semibold text-slate-800">
+//                 {certificate.validUntil || "—"}
+//               </p>
+//             </div>
+
+//           </div>
+
+//           {/* Verification footer */}
+//           <div className="mt-8 rounded-xl bg-slate-50 p-4 text-center">
+//             <p className="text-sm text-slate-500">
+//               This certificate was retrieved from the official
+//               ALMVE verification system.
+//             </p>
+//           </div>
+
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+import { useEffect, useRef, useState } from "react";
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+import { Html5Qrcode } from "html5-qrcode";
+
+const BACKEND_URL =
+  "https://maapsetu-w1sf.onrender.com";
 
 interface Certificate {
   certificateId?: string;
@@ -2752,229 +2997,990 @@ interface Certificate {
   businessName?: string;
   instrumentType?: string;
   instrumentId?: string;
+  certificateType?: string;
+  manufacturer?: string;
   status?: string;
   issueDate?: string;
   validUntil?: string;
+  location?: string;
+}
+
+interface SearchResponse {
+  success?: boolean;
+  certificates?: Certificate[];
+  message?: string;
+}
+
+interface CertificateResponse {
+  success?: boolean;
+  certificate?: Certificate;
+  message?: string;
 }
 
 export default function PublicVerify() {
-  const { certificateId } = useParams<{ certificateId: string }>();
+  const navigate = useNavigate();
+
+  const { certificateId: urlCertificateId } =
+    useParams<{
+      certificateId?: string;
+    }>();
+
+  /* =========================================
+     STATE
+  ========================================= */
 
   const [certificate, setCertificate] =
     useState<Certificate | null>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [businessName, setBusinessName] =
+    useState("");
 
-  useEffect(() => {
-    const fetchCertificate = async () => {
-      if (!certificateId) {
-        setError("Certificate ID is missing.");
-        setLoading(false);
-        return;
+  const [instrumentType, setInstrumentType] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [searched, setSearched] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [scannerOpen, setScannerOpen] =
+    useState(false);
+
+  const scannerRef =
+    useRef<Html5Qrcode | null>(null);
+
+  const scannerRunningRef =
+    useRef(false);
+
+  /* =========================================
+     VERIFY CERTIFICATE
+  ========================================= */
+
+  const verifyCertificate = async (
+    value: string,
+    updateUrl = true
+  ) => {
+    const cleanedValue =
+      value.trim();
+
+    if (!cleanedValue) {
+      setError(
+        "Certificate ID or Certificate Number is required."
+      );
+      setSearched(true);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setCertificate(null);
+    setSearched(false);
+
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/api/public/certificates/${encodeURIComponent(
+          cleanedValue
+        )}`
+      );
+
+      const data: CertificateResponse =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success ||
+        !data.certificate
+      ) {
+        throw new Error(
+          data.message ||
+            "Certificate could not be verified."
+        );
       }
 
-      try {
-        const response = await fetch(
-          `${BACKEND_URL}/api/public/certificates/${encodeURIComponent(
-            certificateId
-          )}`
+      setCertificate(
+        data.certificate
+      );
+
+      setSearched(true);
+
+      /*
+       * Update browser URL only when
+       * verification started from search
+       * or QR scanner.
+       */
+      if (updateUrl) {
+        navigate(
+          `/verify/${encodeURIComponent(
+            cleanedValue
+          )}`,
+          {
+            replace: true,
+          }
         );
+      }
+    } catch (err) {
+      console.error(
+        "Certificate verification error:",
+        err
+      );
 
-        const data = await response.json();
+      setCertificate(null);
 
-        if (!response.ok || !data.success) {
-          throw new Error(
-            data.message || "Certificate could not be verified."
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to verify certificate."
+      );
+
+      setSearched(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* =========================================
+     SEARCH BY BUSINESS NAME
+     + INSTRUMENT TYPE
+  ========================================= */
+
+  const searchCertificate = async () => {
+    const business =
+      businessName.trim();
+
+    const instrument =
+      instrumentType.trim();
+
+    if (!business) {
+      setError(
+        "Please enter Business Name."
+      );
+      setSearched(true);
+      return;
+    }
+
+    if (!instrument) {
+      setError(
+        "Please enter Instrument Type."
+      );
+      setSearched(true);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setCertificate(null);
+    setSearched(false);
+
+    try {
+      const params =
+        new URLSearchParams();
+
+      params.set(
+        "businessName",
+        business
+      );
+
+      params.set(
+        "instrumentType",
+        instrument
+      );
+
+      const response = await fetch(
+        `${BACKEND_URL}/api/public/certificates/search?${params.toString()}`
+      );
+
+      const data: SearchResponse =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+            "Unable to search certificates."
+        );
+      }
+
+      const certificates =
+        data.certificates || [];
+
+      if (
+        certificates.length === 0
+      ) {
+        throw new Error(
+          "No certificate found for this Business Name and Instrument Type."
+        );
+      }
+
+      /*
+       * Show first matching certificate.
+       */
+      setCertificate(
+        certificates[0]
+      );
+
+      setSearched(true);
+    } catch (err) {
+      console.error(
+        "Certificate search error:",
+        err
+      );
+
+      setCertificate(null);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to search certificate."
+      );
+
+      setSearched(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* =========================================
+     EXTRACT CERTIFICATE VALUE FROM QR
+  ========================================= */
+
+  const extractCertificateValue = (
+    qrText: string
+  ): string => {
+    let value =
+      qrText.trim();
+
+    /*
+     * QR may contain:
+     *
+     * CERT-123
+     *
+     * ALMVE/2026/739580
+     *
+     * https://maap-setu-two.vercel.app/verify/CERT-123
+     *
+     * https://maap-setu-two.vercel.app/verify/ALMVE%2F2026%2F739580
+     */
+
+    try {
+      if (
+        value.startsWith("http://") ||
+        value.startsWith("https://")
+      ) {
+        const url =
+          new URL(value);
+
+        const parts =
+          url.pathname
+            .split("/")
+            .filter(Boolean);
+
+        const verifyIndex =
+          parts.findIndex(
+            (part) =>
+              part.toLowerCase() ===
+              "verify"
           );
+
+        if (
+          verifyIndex !== -1 &&
+          parts.length >
+            verifyIndex + 1
+        ) {
+          value =
+            parts
+              .slice(
+                verifyIndex + 1
+              )
+              .join("/");
+        }
+      }
+    } catch {
+      /*
+       * If QR text is not a valid URL,
+       * use it directly.
+       */
+    }
+
+    try {
+      return decodeURIComponent(
+        value
+      );
+    } catch {
+      return value;
+    }
+  };
+
+  /* =========================================
+     HANDLE QR RESULT
+  ========================================= */
+
+  const handleQrResult = async (
+    decodedText: string
+  ) => {
+    const certificateValue =
+      extractCertificateValue(
+        decodedText
+      );
+
+    await stopScanner();
+
+    await verifyCertificate(
+      certificateValue,
+      true
+    );
+  };
+
+  /* =========================================
+     START QR SCANNER
+  ========================================= */
+
+  const startScanner = async () => {
+    setError("");
+    setSearched(false);
+
+    setScannerOpen(true);
+
+    /*
+     * Wait for QR reader element
+     * to be rendered.
+     */
+    setTimeout(async () => {
+      try {
+        if (
+          scannerRef.current
+        ) {
+          return;
         }
 
-        setCertificate(data.certificate);
+        const qrScanner =
+          new Html5Qrcode(
+            "qr-reader"
+          );
+
+        scannerRef.current =
+          qrScanner;
+
+        await qrScanner.start(
+          {
+            facingMode:
+              "environment",
+          },
+          {
+            fps: 10,
+
+            qrbox: {
+              width: 250,
+              height: 250,
+            },
+
+            aspectRatio: 1,
+          },
+          async (
+            decodedText
+          ) => {
+            if (
+              !scannerRunningRef.current
+            ) {
+              return;
+            }
+
+            scannerRunningRef.current =
+              false;
+
+            await handleQrResult(
+              decodedText
+            );
+          },
+          () => {
+            /*
+             * Normal QR scanning frame
+             * errors are ignored.
+             */
+          }
+        );
+
+        scannerRunningRef.current =
+          true;
       } catch (err) {
-        console.error("Certificate verification error:", err);
+        console.error(
+          "QR scanner error:",
+          err
+        );
+
+        scannerRef.current =
+          null;
+
+        scannerRunningRef.current =
+          false;
+
+        setScannerOpen(false);
 
         setError(
-          err instanceof Error
-            ? err.message
-            : "Certificate could not be verified."
+          "Unable to start camera. Please allow camera permission and try again."
         );
-      } finally {
-        setLoading(false);
+
+        setSearched(true);
       }
+    }, 300);
+  };
+
+  /* =========================================
+     STOP QR SCANNER
+  ========================================= */
+
+  const stopScanner = async () => {
+    const qrScanner =
+      scannerRef.current;
+
+    scannerRunningRef.current =
+      false;
+
+    if (!qrScanner) {
+      setScannerOpen(false);
+      return;
+    }
+
+    try {
+      if (
+        qrScanner.isScanning
+      ) {
+        await qrScanner.stop();
+      }
+    } catch (err) {
+      console.error(
+        "QR scanner stop error:",
+        err
+      );
+    }
+
+    try {
+      qrScanner.clear();
+    } catch {
+      /*
+       * Ignore clear error.
+       */
+    }
+
+    scannerRef.current =
+      null;
+
+    setScannerOpen(false);
+  };
+
+  /* =========================================
+     AUTO VERIFY URL CERTIFICATE
+  ========================================= */
+
+  useEffect(() => {
+    if (!urlCertificateId) {
+      setLoading(false);
+      setCertificate(null);
+      setError("");
+      setSearched(false);
+
+      return;
+    }
+
+    const decoded =
+      decodeURIComponent(
+        urlCertificateId
+      );
+
+    verifyCertificate(
+      decoded,
+      false
+    );
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlCertificateId]);
+
+  /* =========================================
+     CLEANUP CAMERA
+  ========================================= */
+
+  useEffect(() => {
+    return () => {
+      const qrScanner =
+        scannerRef.current;
+
+      if (qrScanner) {
+        try {
+          if (
+            qrScanner.isScanning
+          ) {
+            qrScanner.stop();
+          }
+        } catch {
+          /*
+           * Ignore cleanup error.
+           */
+        }
+      }
+
+      scannerRef.current =
+        null;
+
+      scannerRunningRef.current =
+        false;
     };
+  }, []);
 
-    fetchCertificate();
-  }, [certificateId]);
+  /* =========================================
+     LOADING SCREEN
+  ========================================= */
 
-  if (loading) {
+  if (
+    loading &&
+    !certificate
+  ) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100">
-        <div className="text-center">
-          <div className="text-xl font-semibold text-slate-800">
-            Verifying certificate...
+      <div className="min-h-screen bg-slate-100">
+        <div className="flex min-h-screen items-center justify-center p-6">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-10 text-center shadow-sm">
+            <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+
+            <h1 className="text-2xl font-bold text-slate-900">
+              Verifying Certificate
+            </h1>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Checking the official ALMVE
+              certificate registry...
+            </p>
           </div>
-
-          <p className="mt-2 text-slate-500">
-            Please wait.
-          </p>
         </div>
       </div>
     );
   }
 
-  if (error || !certificate) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 p-6">
-        <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm text-center">
-          <h1 className="text-2xl font-bold text-red-600">
-            Certificate Verification Failed
-          </h1>
-
-          <p className="mt-4 text-slate-600">
-            {error || "Certificate not found."}
-          </p>
-
-          <p className="mt-4 text-sm text-slate-400">
-            Certificate ID: {certificateId}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  /* =========================================
+     MAIN PAGE
+  ========================================= */
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6 md:p-10">
-      <div className="mx-auto max-w-3xl">
+    <div className="min-h-screen bg-slate-100">
+      {/* =====================================
+          HEADER
+      ===================================== */}
 
-        {/* Header */}
-        <div className="mb-6 text-center">
-          <p className="text-sm font-semibold text-emerald-700">
-            ALMVE
-          </p>
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8">
+          <div>
+            <p className="text-sm font-bold text-emerald-700">
+              ALMVE
+            </p>
 
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
-            Certificate Verification
-          </h1>
+            <h1 className="mt-1 text-xl font-bold text-slate-900 md:text-2xl">
+              Certificate Verification
+            </h1>
 
-          <p className="mt-2 text-slate-500">
-            Official certificate verification
+            <p className="mt-1 text-xs text-slate-500 md:text-sm">
+              Official Public Verification System
+            </p>
+          </div>
+
+          <div className="hidden rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 sm:block">
+            Secure Verification
+          </div>
+        </div>
+      </header>
+
+      {/* =====================================
+          CONTENT
+      ===================================== */}
+
+      <main className="mx-auto max-w-6xl px-5 py-8 md:px-8 md:py-12">
+        {/* TITLE */}
+
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-bold text-slate-900 md:text-4xl">
+            Verify a Certificate
+          </h2>
+
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500 md:text-base">
+            Scan the certificate QR code or
+            search using Business Name and
+            Instrument Type.
           </p>
         </div>
 
-        {/* Certificate */}
-        <div className="rounded-2xl bg-white p-6 md:p-8 shadow-sm">
+        {/* =====================================
+            QR SCANNER CARD
+        ===================================== */}
 
-          {/* Valid status */}
-          <div className="mb-6 flex justify-center">
-            <div className="rounded-full bg-emerald-100 px-5 py-2 text-sm font-semibold text-emerald-700">
-              ✓ {certificate.status || "Valid"}
+        <section className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-3xl">
+              📷
             </div>
-          </div>
 
-          <div className="border-b pb-6">
-            <p className="text-sm text-slate-500">
-              Certificate Number
+            <h3 className="mt-4 text-xl font-bold text-slate-900">
+              Scan QR Code
+            </h3>
+
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
+              Scan the QR code printed on the
+              ALMVE certificate to verify it
+              instantly.
             </p>
 
-            <p className="mt-1 text-2xl font-bold text-slate-900">
-              {certificate.certificateNumber || "—"}
+            {!scannerOpen ? (
+              <button
+                type="button"
+                onClick={
+                  startScanner
+                }
+                className="mt-6 rounded-xl bg-emerald-700 px-7 py-3.5 font-semibold text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 active:scale-95"
+              >
+                📷 Start QR Scanner
+              </button>
+            ) : (
+              <div className="mt-6">
+                <div
+                  id="qr-reader"
+                  className="mx-auto max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-black"
+                />
+
+                <button
+                  type="button"
+                  onClick={
+                    stopScanner
+                  }
+                  className="mt-4 rounded-xl border border-red-200 bg-red-50 px-6 py-3 font-semibold text-red-700 transition hover:bg-red-100"
+                >
+                  Stop Scanner
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* =====================================
+            OR
+        ===================================== */}
+
+        <div className="my-8 flex items-center gap-4">
+          <div className="h-px flex-1 bg-slate-200" />
+
+          <span className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-400 shadow-sm">
+            OR
+          </span>
+
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        {/* =====================================
+            SEARCH CARD
+        ===================================== */}
+
+        <section className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-slate-900">
+              Search Certificate
+            </h3>
+
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              Enter the Business Name and
+              Instrument Type to find the
+              certificate.
             </p>
           </div>
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="space-y-5">
+            {/* BUSINESS NAME */}
 
             <div>
-              <p className="text-sm text-slate-500">
-                Certificate ID
-              </p>
-
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.certificateId || "—"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-slate-500">
-                Verification ID
-              </p>
-
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.verificationId || "—"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-slate-500">
-                Application ID
-              </p>
-
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.applicationId || "—"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-slate-500">
+              <label
+                htmlFor="businessName"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
                 Business Name
-              </p>
+              </label>
 
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.businessName || "—"}
-              </p>
+              <input
+                id="businessName"
+                type="text"
+                value={
+                  businessName
+                }
+                onChange={(
+                  event
+                ) => {
+                  setBusinessName(
+                    event.target.value
+                  );
+
+                  setError("");
+                  setSearched(false);
+                  setCertificate(null);
+                }}
+                onKeyDown={(
+                  event
+                ) => {
+                  if (
+                    event.key ===
+                    "Enter"
+                  ) {
+                    searchCertificate();
+                  }
+                }}
+                placeholder="e.g. Sharma General Store"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+              />
             </div>
 
+            {/* INSTRUMENT TYPE */}
+
             <div>
-              <p className="text-sm text-slate-500">
+              <label
+                htmlFor="instrumentType"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
                 Instrument Type
-              </p>
+              </label>
 
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.instrumentType || "—"}
-              </p>
+              <input
+                id="instrumentType"
+                type="text"
+                value={
+                  instrumentType
+                }
+                onChange={(
+                  event
+                ) => {
+                  setInstrumentType(
+                    event.target.value
+                  );
+
+                  setError("");
+                  setSearched(false);
+                  setCertificate(null);
+                }}
+                onKeyDown={(
+                  event
+                ) => {
+                  if (
+                    event.key ===
+                    "Enter"
+                  ) {
+                    searchCertificate();
+                  }
+                }}
+                placeholder="e.g. Weighing Scale"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+              />
             </div>
 
-            <div>
-              <p className="text-sm text-slate-500">
-                Instrument ID
-              </p>
+            {/* SEARCH BUTTON */}
 
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.instrumentId || "—"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-slate-500">
-                Issue Date
-              </p>
-
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.issueDate || "—"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-slate-500">
-                Valid Until
-              </p>
-
-              <p className="mt-1 font-semibold text-slate-800">
-                {certificate.validUntil || "—"}
-              </p>
-            </div>
-
+            <button
+              type="button"
+              onClick={
+                searchCertificate
+              }
+              disabled={loading}
+              className="w-full rounded-xl bg-emerald-700 px-6 py-3.5 font-semibold text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading
+                ? "Searching..."
+                : "🔍 Verify Certificate"}
+            </button>
           </div>
+        </section>
 
-          {/* Verification footer */}
-          <div className="mt-8 rounded-xl bg-slate-50 p-4 text-center">
-            <p className="text-sm text-slate-500">
-              This certificate was retrieved from the official
-              ALMVE verification system.
-            </p>
-          </div>
+        {/* =====================================
+            ERROR
+        ===================================== */}
 
-        </div>
-      </div>
+        {searched &&
+          error &&
+          !certificate && (
+            <section className="mx-auto mt-8 max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+              <div className="text-4xl">
+                ❌
+              </div>
+
+              <h3 className="mt-3 text-xl font-bold text-red-700">
+                Certificate Not Found
+              </h3>
+
+              <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-red-600">
+                {error}
+              </p>
+            </section>
+          )}
+
+        {/* =====================================
+            CERTIFICATE RESULT
+        ===================================== */}
+
+        {certificate && (
+          <section className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm">
+            {/* RESULT HEADER */}
+
+            <div className="border-b border-emerald-200 bg-emerald-50 p-6 md:p-8">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-emerald-700">
+                    Certificate Verification
+                    Result
+                  </p>
+
+                  <h3 className="mt-1 text-2xl font-bold text-emerald-800">
+                    ✓ CERTIFICATE VERIFIED
+                  </h3>
+                </div>
+
+                <div className="w-fit rounded-full bg-emerald-100 px-5 py-2 text-sm font-bold text-emerald-700">
+                  {certificate.status ||
+                    "Valid"}
+                </div>
+              </div>
+            </div>
+
+            {/* CERTIFICATE NUMBER */}
+
+            <div className="border-b border-slate-200 p-6 md:p-8">
+              <p className="text-sm font-medium text-slate-500">
+                Certificate Number
+              </p>
+
+              <p className="mt-2 break-all text-2xl font-bold text-slate-900">
+                {certificate.certificateNumber ||
+                  "—"}
+              </p>
+            </div>
+
+            {/* DETAILS */}
+
+            <div className="grid gap-5 p-6 sm:grid-cols-2 md:p-8">
+              <Detail
+                label="Business Name"
+                value={
+                  certificate.businessName
+                }
+              />
+
+              <Detail
+                label="Instrument Type"
+                value={
+                  certificate.instrumentType
+                }
+              />
+
+              <Detail
+                label="Certificate ID"
+                value={
+                  certificate.certificateId
+                }
+              />
+
+              <Detail
+                label="Verification ID"
+                value={
+                  certificate.verificationId
+                }
+              />
+
+              <Detail
+                label="Application ID"
+                value={
+                  certificate.applicationId
+                }
+              />
+
+              <Detail
+                label="Instrument ID"
+                value={
+                  certificate.instrumentId
+                }
+              />
+
+              <Detail
+                label="Manufacturer"
+                value={
+                  certificate.manufacturer
+                }
+              />
+
+              <Detail
+                label="Certificate Type"
+                value={
+                  certificate.certificateType
+                }
+              />
+
+              <Detail
+                label="Issue Date"
+                value={
+                  certificate.issueDate
+                }
+              />
+
+              <Detail
+                label="Valid Until"
+                value={
+                  certificate.validUntil
+                }
+              />
+
+              <Detail
+                label="Location"
+                value={
+                  certificate.location
+                }
+              />
+
+              <Detail
+                label="Status"
+                value={
+                  certificate.status
+                }
+              />
+            </div>
+
+            {/* FOOTER */}
+
+            <div className="border-t border-slate-200 bg-slate-50 p-6 text-center">
+              <p className="text-sm leading-6 text-slate-500">
+                This certificate was retrieved
+                from the official ALMVE
+                verification system.
+              </p>
+            </div>
+          </section>
+        )}
+      </main>
+    </div>
+  );
+}
+
+/* =========================================
+   DETAIL COMPONENT
+========================================= */
+
+function Detail({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
+
+      <p className="mt-1 break-words text-sm font-semibold text-slate-800">
+        {value || "—"}
+      </p>
     </div>
   );
 }
