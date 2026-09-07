@@ -148,11 +148,19 @@ function App() {
             PUBLIC CERTIFICATE VERIFICATION
         ===================================== */}
 
-        <Route
+        {/* <Route
           path="/verify/:certificateId"
           element={<PublicVerify />}
+        /> */}
+         <Route
+           path="/verify"
+           element={<PublicVerify />}
         />
 
+           <Route
+              path="/verify/:certificateId"
+              element={<PublicVerify />}
+        />
         {/* =====================================
             INSPECTOR
         ===================================== */}
