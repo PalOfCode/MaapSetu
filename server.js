@@ -19,19 +19,29 @@ const app = express();
 MIDDLEWARE
 ========================================================= */
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://172.20.10.2:5173",
+  "https://maap-setu-two.vercel.app",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      "http://172.20.10.2:5173",
-       "https://maap-setu-two.vercel.app",
-    ],
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/maap-setu-.*\.vercel\.app$/.test(origin)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
-
-app.use(express.json());
 
 /* =========================================================
 DATABASE
