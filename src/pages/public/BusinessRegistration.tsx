@@ -346,7 +346,7 @@ function BusinessRegistration() {
 
       const businessResponse =
         await fetch(
-          "http://localhost:5000/api/businesses",
+          "https://maapsetu-w1sf.onrender.com/api/businesses",
           {
             method: "POST",
             headers: {
