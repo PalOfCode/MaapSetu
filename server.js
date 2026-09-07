@@ -4790,6 +4790,8 @@ app.get(
 
           businessId:
             String(row.business_id),
+            businessName:
+             row.business_name || "Unknown Business",
 
           certificateType:
             row.certificate_type ||
