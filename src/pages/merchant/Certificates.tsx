@@ -347,7 +347,7 @@ function Certificates() {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/certificates",
+          "https://maapsetu-w1sf.onrender.com/api/certificates",
           {
             method: "GET",
             headers: {
@@ -533,7 +533,7 @@ function Certificates() {
   const getVerificationUrl = (
     certificateId: string
   ) => {
-    const backendUrl = "http://172.20.10.2:5000";
+    const backendUrl = "https://maapsetu-w1sf.onrender.com";
 
     return `${backendUrl}/api/public/certificates/${encodeURIComponent(
       certificateId

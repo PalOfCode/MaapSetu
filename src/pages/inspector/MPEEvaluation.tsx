@@ -221,7 +221,7 @@ function MPEEvaluation() {
         try {
           const response =
             await fetch(
-              "http://localhost:5000/api/inspector/applications",
+              "https://maapsetu-w1sf.onrender.com/api/inspector/applications",
               {
                 headers: {
                   Authorization:
@@ -607,7 +607,7 @@ function MPEEvaluation() {
     try {
       const response =
         await fetch(
-          "http://localhost:5000/api/verifications",
+          "https://maapsetu-w1sf.onrender.com/api/verifications",
           {
             method: "POST",
             headers: {

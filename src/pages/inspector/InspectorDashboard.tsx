@@ -218,7 +218,7 @@ function InspectorDashboard() {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/inspector/applications",
+          "https://maapsetu-w1sf.onrender.com/api/inspector/applications",
           {
             method: "GET",
             headers: {

@@ -93,7 +93,7 @@ function ApplicationDetails() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/applications/${encodeURIComponent(
+          `https://maapsetu-w1sf.onrender.com/api/applications/${encodeURIComponent(
             id
           )}`,
           {

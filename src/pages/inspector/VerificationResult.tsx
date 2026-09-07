@@ -616,7 +616,7 @@ function VerificationResult() {
   ) => {
     try {
       await apiRequest<ApiResponse>(
-        `http://localhost:5000/api/admin/applications/${encodeURIComponent(applicationId)}/status`,
+        `https://maapsetu-w1sf.onrender.com/api/admin/applications/${encodeURIComponent(applicationId)}/status`,
         {
           method: "PATCH",
           body: JSON.stringify({ status }),
@@ -653,7 +653,7 @@ function VerificationResult() {
        */
 
       const response = await apiRequest<ApiResponse>(
-        "http://localhost:5000/api/certificates",
+        "https://maapsetu-w1sf.onrender.com/api/certificates",
         {
           method: "POST",
           body: JSON.stringify({
@@ -751,7 +751,7 @@ function VerificationResult() {
 
     try {
       const response = await apiRequest<ApiResponse>(
-        "http://localhost:5000/api/enforcement",
+        "https://maapsetu-w1sf.onrender.com/api/enforcement",
         {
           method: "POST",
           body: JSON.stringify({

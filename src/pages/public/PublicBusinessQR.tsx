@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://maapsetu-w1sf.onrender.com";
 
 interface Business {
   businessId: number;
@@ -95,7 +95,6 @@ export default function PublicBusinessQR() {
           Enter the business name to generate its certificate QR code.
         </p>
 
-        {/* SEARCH */}
         <div
           style={{
             display: "flex",
@@ -137,7 +136,6 @@ export default function PublicBusinessQR() {
           </button>
         </div>
 
-        {/* ERROR */}
         {error && (
           <div
             style={{
@@ -152,7 +150,6 @@ export default function PublicBusinessQR() {
           </div>
         )}
 
-        {/* BUSINESS RESULTS */}
         {businesses.length > 0 && (
           <div style={{ marginBottom: "30px" }}>
             <h2>Select Business</h2>
@@ -200,7 +197,6 @@ export default function PublicBusinessQR() {
           </div>
         )}
 
-        {/* QR */}
         {selectedBusiness && (
           <div
             style={{

@@ -175,7 +175,7 @@ function Instruments() {
         setErrorMessage("");
 
         const response = await fetch(
-          "http://localhost:5000/api/instruments",
+          "https://maapsetu-w1sf.onrender.com/api/instruments",
           {
             headers: {
               Authorization:

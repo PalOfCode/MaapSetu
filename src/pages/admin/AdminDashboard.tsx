@@ -125,7 +125,7 @@ function AdminDashboard() {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/admin/dashboard",
+          "https://maapsetu-w1sf.onrender.com/api/admin/dashboard",
           {
             method: "GET",
             headers: {

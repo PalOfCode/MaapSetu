@@ -430,15 +430,15 @@ function Dashboard() {
             userResponse,
           ] = await Promise.all([
             fetch(
-              "http://localhost:5000/api/applications",
+              "https://maapsetu-w1sf.onrender.com/api/applications",
               { headers }
             ),
             fetch(
-              "http://localhost:5000/api/certificates",
+              "https://maapsetu-w1sf.onrender.com/api/certificates",
               { headers }
             ),
             fetch(
-              "http://localhost:5000/api/auth/me",
+              "https://maapsetu-w1sf.onrender.com/api/auth/me",
               { headers }
             ),
           ]);

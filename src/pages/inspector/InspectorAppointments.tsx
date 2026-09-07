@@ -63,7 +63,7 @@ interface Appointment {
    Real appointments are loaded from the ALMVE backend API.
 ========================================================= */
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://maapsetu-w1sf.onrender.com";
 
 interface InspectorApplicationsResponse {
   success: boolean;

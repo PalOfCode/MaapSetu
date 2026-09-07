@@ -132,7 +132,7 @@ function InspectorApplications() {
         success: boolean;
         profile?: InspectorProfile;
         applications?: unknown[];
-      }>("http://localhost:5000/api/inspector/applications");
+      }>("https://maapsetu-w1sf.onrender.com/api/inspector/applications");
 
       const mapped = Array.isArray(response.applications)
         ? response.applications

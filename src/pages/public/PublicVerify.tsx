@@ -347,7 +347,7 @@ function Certificates() {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/certificates",
+          "https://maapsetu-w1sf.onrender.com/api/certificates",
           {
             method: "GET",
             headers: {

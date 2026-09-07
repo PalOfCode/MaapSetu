@@ -266,7 +266,7 @@ function AdminApplications() {
           applications?: unknown[];
           message?: string;
         }>(
-          "http://localhost:5000/api/admin/applications"
+          "https://maapsetu-w1sf.onrender.com/api/admin/applications"
         ),
 
         apiRequest<{
@@ -274,7 +274,7 @@ function AdminApplications() {
           inspectors?: unknown[];
           message?: string;
         }>(
-          "http://localhost:5000/api/admin/inspectors"
+          "https://maapsetu-w1sf.onrender.com/api/admin/inspectors"
         ),
       ]);
 
@@ -511,7 +511,7 @@ function AdminApplications() {
               unknown
             >;
           }>(
-            `http://localhost:5000/api/admin/applications/${encodeURIComponent(
+            `https://maapsetu-w1sf.onrender.com/api/admin/applications/${encodeURIComponent(
               selectedApplication.id
             )}/assign`,
             {
@@ -583,7 +583,7 @@ function AdminApplications() {
             success: boolean;
             message?: string;
           }>(
-            `http://localhost:5000/api/admin/applications/${encodeURIComponent(
+            `https://maapsetu-w1sf.onrender.com/api/admin/applications/${encodeURIComponent(
               selectedApplication.id
             )}/status`,
             {
@@ -655,7 +655,7 @@ function AdminApplications() {
             success: boolean;
             message?: string;
           }>(
-            `http://localhost:5000/api/admin/applications/${encodeURIComponent(
+            `https://maapsetu-w1sf.onrender.com/api/admin/applications/${encodeURIComponent(
               selectedApplication.id
             )}/status`,
             {
