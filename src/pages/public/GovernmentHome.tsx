@@ -349,137 +349,84 @@ function GovernmentHome() {
             HERO
         ===================================== */}
 
-        <section className="relative overflow-hidden bg-gradient-to-b from-green-50 via-white to-white">
+        <section
+          className="relative min-h-[560px] overflow-hidden bg-slate-950 bg-cover bg-center sm:min-h-[620px] md:min-h-[680px]"
+          style={{
+            backgroundImage: "url('/images/hero-machine.png')",
+            backgroundPosition: "center center",
+          }}
+        >
 
-          <div className="absolute -left-20 top-10 h-52 w-52 rounded-full bg-green-200/40 blur-3xl" />
+          {/* Dark overlay for readable text */}
+          <div className="absolute inset-0 bg-slate-950/60" />
 
-          <div className="absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-amber-100/50 blur-3xl" />
+          {/* Extra left-side gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/50 to-slate-950/20" />
 
-          <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-8 sm:pb-14 sm:pt-12 md:px-6 md:py-20">
+          <div className="relative mx-auto flex min-h-[560px] max-w-7xl items-center px-4 py-14 sm:min-h-[620px] sm:py-16 md:min-h-[680px] md:px-6 md:py-20">
 
-            <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div className="max-w-2xl">
 
-              {/* HERO TEXT */}
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm sm:px-4 sm:text-xs">
+                <ShieldCheck size={15} />
+                Official Legal Metrology Portal
+              </div>
 
-              <div>
+              <h2 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
+                Fair Measurement
 
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-green-200 bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-green-700 shadow-sm sm:px-4 sm:text-xs">
-                  <ShieldCheck size={15} />
-                  Official Legal Metrology Portal
-                </div>
+                <span className="block text-green-300">
+                  Stronger India
+                </span>
+              </h2>
 
-                <h2 className="max-w-xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+              <p className="mt-5 max-w-xl text-base leading-7 text-slate-100 sm:text-lg md:text-xl md:leading-8">
+                Digital Verification for Weighing and Measuring Instruments
+                through a secure and transparent Legal Metrology platform.
+              </p>
 
-                  Fair Measurement
+              <div className="mt-7 grid max-w-md gap-3 sm:flex sm:max-w-none">
 
-                  <span className="block text-green-700">
-                    Stronger India
-                  </span>
+                <button
+                  type="button"
+                  onClick={goToCertificateVerification}
+                  className="flex min-h-[54px] items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-green-950/30 transition hover:bg-green-500 active:scale-[0.98] sm:px-7 sm:text-base"
+                >
+                  Verify Certificate
+                  <ArrowRight size={19} />
+                </button>
 
-                </h2>
-
-                <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-
-                  Digital verification for weighing and measuring
-                  instruments through a secure and transparent
-                  Legal Metrology platform.
-
-                </p>
-
-                {/* MOBILE PRIMARY BUTTON */}
-
-                <div className="mt-7 grid gap-3 sm:flex">
-
-                  <button
-                    type="button"
-                    onClick={goToCertificateVerification}
-                    className="flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-green-700 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-green-700/20 transition hover:bg-green-800 active:scale-[0.98]"
-                  >
-                    Verify Certificate
-                    <ArrowRight size={18} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={goToBusinessRegistration}
-                    className="flex min-h-[52px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-green-300 hover:bg-green-50 active:scale-[0.98]"
-                  >
-                    Register Instrument
-                    <FileText size={18} />
-                  </button>
-
-                </div>
+                <button
+                  type="button"
+                  onClick={goToBusinessRegistration}
+                  className="flex min-h-[54px] items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-white/20 active:scale-[0.98] sm:px-7 sm:text-base"
+                >
+                  Register Instrument
+                  <FileText size={18} />
+                </button>
 
               </div>
 
-              {/* HERO CARD */}
+              {/* Quick access */}
+              <div className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3 sm:gap-5">
 
-              <div className="lg:pl-8">
+                <HeroFeature
+                  icon={<ShieldCheck size={20} />}
+                  title="For Citizens"
+                  description="Verify certificates instantly"
+                />
 
-                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xl sm:p-7">
+                <HeroFeature
+                  icon={<Building2 size={20} />}
+                  title="For Businesses"
+                  description="Register and manage instruments"
+                />
 
-                  <div className="flex items-center gap-4">
-
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700">
-                      <Scale size={29} />
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Digital Governance
-                      </p>
-
-                      <h3 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
-                        ALMVE Portal
-                      </h3>
-                    </div>
-
-                  </div>
-
-                  <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
-
-                    <QuickStat
-                      label="Registered"
-                      value="25,480"
-                    />
-
-                    <QuickStat
-                      label="Verified"
-                      value="18,910"
-                    />
-
-                    <QuickStat
-                      label="Inspectors"
-                      value="125"
-                    />
-
-                    <QuickStat
-                      label="Certificates"
-                      value="18,910"
-                    />
-
-                  </div>
-
-                  <div className="mt-5 rounded-2xl bg-green-50 p-4">
-
-                    <div className="flex items-start gap-3">
-
-                      <ShieldCheck
-                        size={20}
-                        className="mt-0.5 shrink-0 text-green-700"
-                      />
-
-                      <p className="text-sm leading-6 text-slate-600">
-                        All verification activities are digitally
-                        recorded to improve transparency and
-                        citizen access to services.
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                </div>
+                <HeroFeature
+                  icon={<Users size={20} />}
+                  title="For Inspectors"
+                  description="Field verification tools"
+                />
 
               </div>
 
@@ -943,6 +890,32 @@ function MobileNavItem({
       {icon}
       {label}
     </button>
+  );
+}
+
+/* =========================================
+   HERO FEATURE
+========================================= */
+
+function HeroFeature({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-white/15 bg-black/20 p-3 backdrop-blur-sm">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-green-300/50 bg-green-500/10 text-green-300">
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-bold text-white sm:text-sm">{title}</p>
+        <p className="mt-0.5 text-[10px] leading-4 text-slate-200 sm:text-xs">{description}</p>
+      </div>
+    </div>
   );
 }
 
