@@ -2402,6 +2402,8 @@ app.get(
 
           b.id AS business_id,
           b.business_name,
+          b.latitude,
+          b.longitude,
 
           i.id AS instrument_db_id,
           i.instrument_code,
@@ -2448,7 +2450,11 @@ app.get(
 
         applicant:
           row.business_name || "Applicant",
+          latitude:
+            row.latitude,
 
+          longitude:
+            row.longitude,
         instrumentId:
           row.instrument_code || "",
 
