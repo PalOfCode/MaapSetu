@@ -18,6 +18,7 @@ import {
 
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import MaapSetuChatbot from "../../components/MaapSetuChatbot";
 
 function GovernmentHome() {
   const navigate = useNavigate();
@@ -1464,6 +1465,9 @@ function GovernmentHome() {
         </div>
 
       </footer>
+
+      {/* FLOATING AI CHATBOT */}
+      <MaapSetuChatbot />
 
     </div>
   );
