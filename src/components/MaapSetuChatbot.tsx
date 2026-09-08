@@ -17,8 +17,7 @@ type Message = {
   text: string;
 };
 
-const API_BASE = "http://localhost:5000";
-
+const API_BASE = "https://maapsetu-w1sf.onrender.com";
 function renderInlineMarkdown(text: string): ReactNode[] {
   const normalized = text
     .replace(/\s+\*\s+(?=\*\*[^*]+\*\*)/g, "\n")
