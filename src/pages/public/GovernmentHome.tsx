@@ -46,6 +46,11 @@ function GovernmentHome() {
     navigate("/verify");
   };
 
+  const goHome = () => {
+    closeMenu();
+    navigate("/");
+  };
+
   const scrollToSection = (id: string) => {
     closeMenu();
 
@@ -67,7 +72,7 @@ function GovernmentHome() {
     <div className="min-h-screen bg-white text-slate-900">
 
       {/* =====================================
-          TOP BAR
+          TOP GOVERNMENT BAR
       ===================================== */}
 
       <div className="hidden bg-slate-950 text-white sm:block">
@@ -108,32 +113,83 @@ function GovernmentHome() {
           HEADER
       ===================================== */}
 
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <header
+        className="
+          sticky
+          top-0
+          z-50
+          border-b
+          border-slate-200
+          bg-white
+        "
+      >
 
-        <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
+        <div
+          className="
+            mx-auto
+            flex
+            h-[68px]
+            max-w-7xl
+            items-center
+            justify-between
+            px-4
+            md:h-[76px]
+            md:px-6
+          "
+        >
 
-          {/* LOGO */}
+          {/* =================================
+              LOGO
+          ================================= */}
 
           <button
             type="button"
-            onClick={() => {
-              closeMenu();
-              navigate("/");
-            }}
+            onClick={goHome}
             className="flex items-center gap-3 text-left"
           >
 
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700 md:h-12 md:w-12">
+            <div
+              className="
+                flex
+                h-11
+                w-11
+                shrink-0
+                items-center
+                justify-center
+                rounded-xl
+                bg-green-50
+                text-green-700
+                md:h-12
+                md:w-12
+              "
+            >
               <Scale size={25} />
             </div>
 
             <div>
 
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">
+              <p
+                className="
+                  text-[10px]
+                  font-semibold
+                  uppercase
+                  tracking-wider
+                  text-slate-500
+                  sm:text-xs
+                "
+              >
                 Government of India
               </p>
 
-              <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
+              <h1
+                className="
+                  text-lg
+                  font-bold
+                  tracking-tight
+                  text-slate-900
+                  sm:text-xl
+                "
+              >
                 MaapSetu
               </h1>
 
@@ -145,9 +201,9 @@ function GovernmentHome() {
 
           </button>
 
-          {/* =====================================
+          {/* =================================
               DESKTOP ACTIONS
-          ===================================== */}
+          ================================= */}
 
           <div className="hidden items-center gap-3 md:flex">
 
@@ -194,9 +250,9 @@ function GovernmentHome() {
 
           </div>
 
-          {/* =====================================
+          {/* =================================
               MOBILE MENU BUTTON
-          ===================================== */}
+          ================================= */}
 
           <button
             type="button"
@@ -212,14 +268,18 @@ function GovernmentHome() {
               text-green-800
               md:hidden
             "
-            aria-label="Toggle menu"
+            aria-label={
+              mobileMenu
+                ? "Close menu"
+                : "Open menu"
+            }
             aria-expanded={mobileMenu}
           >
 
             {mobileMenu ? (
-              <X size={23} />
+              <X size={25} />
             ) : (
-              <Menu size={23} />
+              <Menu size={25} />
             )}
 
           </button>
@@ -230,9 +290,26 @@ function GovernmentHome() {
             DESKTOP NAVIGATION
         ===================================== */}
 
-        <nav className="hidden border-t border-green-800 bg-green-700 md:block">
+        <nav
+          className="
+            hidden
+            border-t
+            border-green-800
+            bg-green-700
+            md:block
+          "
+        >
 
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
+          <div
+            className="
+              mx-auto
+              flex
+              max-w-7xl
+              items-center
+              justify-between
+              px-6
+            "
+          >
 
             <div className="flex items-center">
 
@@ -240,7 +317,7 @@ function GovernmentHome() {
                 icon={<HomeIcon size={16} />}
                 label="Home"
                 active
-                onClick={() => navigate("/")}
+                onClick={goHome}
               />
 
               <NavItem
@@ -301,194 +378,217 @@ function GovernmentHome() {
 
         </nav>
 
-        {/* =====================================
-            MOBILE MENU
-        ===================================== */}
+      </header>
 
-        {mobileMenu && (
+      {/* =====================================
+          MOBILE MENU
+          
+          IMPORTANT:
+          Menu is OUTSIDE header.
+          This prevents clipping/stacking issues.
+      ===================================== */}
 
-          <div
-            className="
-              fixed
-              inset-x-0
-              bottom-0
-              top-[68px]
-              z-[60]
-              overflow-y-auto
-              border-t
-              border-slate-200
-              bg-white
-              shadow-2xl
-              md:hidden
-            "
-          >
+      {mobileMenu && (
+        <div
+          className="
+            fixed
+            inset-x-0
+            bottom-0
+            top-[68px]
+            z-40
+            overflow-y-auto
+            bg-white
+            shadow-2xl
+            md:hidden
+          "
+        >
 
-            <div className="mx-auto min-h-full max-w-7xl px-4 py-5">
+          <div className="min-h-full px-4 pb-8 pt-5">
 
-              {/* MENU BRAND CARD */}
+            {/* =================================
+                MENU BRAND CARD
+            ================================= */}
 
-              <div className="mb-5 rounded-2xl bg-green-50 p-4">
+            <div
+              className="
+                mb-5
+                rounded-2xl
+                bg-green-50
+                p-4
+              "
+            >
 
-                <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
 
-                  <div
-                    className="
-                      flex
-                      h-12
-                      w-12
-                      shrink-0
-                      items-center
-                      justify-center
-                      rounded-xl
-                      bg-white
-                      text-green-700
-                      shadow-sm
-                    "
-                  >
-                    <Scale size={24} />
-                  </div>
+                <div
+                  className="
+                    flex
+                    h-12
+                    w-12
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-white
+                    text-green-700
+                    shadow-sm
+                  "
+                >
+                  <Scale size={24} />
+                </div>
 
-                  <div>
+                <div>
 
-                    <p className="text-lg font-bold text-slate-900">
-                      MaapSetu
-                    </p>
+                  <p className="text-lg font-bold text-slate-900">
+                    MaapSetu
+                  </p>
 
-                    <p className="text-sm text-slate-500">
-                      Fair Measurement. Stronger India.
-                    </p>
-
-                  </div>
+                  <p className="text-sm text-slate-500">
+                    Fair Measurement. Stronger India.
+                  </p>
 
                 </div>
 
               </div>
 
-              {/* MENU ITEMS */}
+            </div>
 
-              <div className="grid gap-1">
+            {/* =================================
+                MENU ITEMS
+            ================================= */}
 
-                <MobileNavItem
-                  icon={<HomeIcon size={19} />}
-                  label="Home"
-                  active
-                  onClick={() => navigate("/")}
-                />
+            <div className="grid gap-1">
 
-                <MobileNavItem
-                  icon={<Info size={19} />}
-                  label="About Department"
-                  onClick={() =>
-                    scrollToSection("about-department")
-                  }
-                />
+              <MobileNavItem
+                icon={<HomeIcon size={19} />}
+                label="Home"
+                active
+                onClick={goHome}
+              />
 
-                <MobileNavItem
-                  icon={<FileText size={19} />}
-                  label="Services"
-                  onClick={() =>
-                    scrollToSection("services")
-                  }
-                />
+              <MobileNavItem
+                icon={<Info size={19} />}
+                label="About Department"
+                onClick={() =>
+                  scrollToSection("about-department")
+                }
+              />
 
-                <MobileNavItem
-                  icon={<Search size={19} />}
-                  label="Verify Certificate"
-                  active
-                  onClick={goToCertificateVerification}
-                />
+              <MobileNavItem
+                icon={<FileText size={19} />}
+                label="Services"
+                onClick={() =>
+                  scrollToSection("services")
+                }
+              />
 
-                <MobileNavItem
-                  icon={<Bell size={19} />}
-                  label="Notices"
-                  onClick={() =>
-                    scrollToSection("notice")
-                  }
-                />
+              <MobileNavItem
+                icon={<Search size={19} />}
+                label="Verify Certificate"
+                active
+                onClick={goToCertificateVerification}
+              />
 
-                <MobileNavItem
-                  icon={<MapPin size={19} />}
-                  label="Contact"
-                  onClick={() =>
-                    scrollToSection("contact")
-                  }
-                />
+              <MobileNavItem
+                icon={<Bell size={19} />}
+                label="Notices"
+                onClick={() =>
+                  scrollToSection("notice")
+                }
+              />
 
-              </div>
+              <MobileNavItem
+                icon={<MapPin size={19} />}
+                label="Contact"
+                onClick={() =>
+                  scrollToSection("contact")
+                }
+              />
 
-              {/* MENU BUTTONS */}
+            </div>
 
-              <div className="mt-5 grid gap-3">
+            {/* =================================
+                LOGIN / BUSINESS BUTTONS
+            ================================= */}
 
-                <button
-                  type="button"
-                  onClick={goToLogin}
-                  className="
-                    min-h-[54px]
-                    rounded-xl
-                    border
-                    border-green-700
-                    px-4
-                    text-left
-                    text-sm
-                    font-bold
-                    text-green-700
-                    transition
-                    hover:bg-green-50
-                  "
-                >
-                  Login
-                </button>
+            <div className="mt-5 grid gap-3">
 
-                <button
-                  type="button"
-                  onClick={goToBusinessRegistration}
-                  className="
-                    min-h-[54px]
-                    rounded-xl
-                    bg-green-700
-                    px-4
-                    text-left
-                    text-sm
-                    font-bold
-                    text-white
-                    transition
-                    hover:bg-green-800
-                  "
-                >
-                  Business Registration
-                </button>
+              <button
+                type="button"
+                onClick={goToLogin}
+                className="
+                  min-h-[54px]
+                  rounded-xl
+                  border
+                  border-green-700
+                  px-4
+                  text-left
+                  text-sm
+                  font-bold
+                  text-green-700
+                  transition
+                  hover:bg-green-50
+                "
+              >
+                Login
+              </button>
 
-              </div>
+              <button
+                type="button"
+                onClick={goToBusinessRegistration}
+                className="
+                  min-h-[54px]
+                  rounded-xl
+                  bg-green-700
+                  px-4
+                  text-left
+                  text-sm
+                  font-bold
+                  text-white
+                  transition
+                  hover:bg-green-800
+                "
+              >
+                Business Registration
+              </button>
 
-              {/* MENU FOOTER */}
+            </div>
 
-              <div className="mt-8 border-t border-slate-200 pt-6 text-center">
+            {/* =================================
+                MENU FOOTER
+            ================================= */}
 
-                <p className="text-sm font-bold text-slate-700">
-                  Fair Measurement
-                </p>
+            <div
+              className="
+                mt-8
+                border-t
+                border-slate-200
+                pt-6
+                text-center
+              "
+            >
 
-                <p className="text-sm text-green-700">
-                  Stronger India
-                </p>
+              <p className="text-sm font-bold text-slate-700">
+                Fair Measurement
+              </p>
 
-                <p className="mt-3 text-xs text-slate-400">
-                  Digital Legal Metrology Portal
-                </p>
+              <p className="text-sm text-green-700">
+                Stronger India
+              </p>
 
-              </div>
+              <p className="mt-2 text-xs text-slate-400">
+                Digital Legal Metrology Portal
+              </p>
 
             </div>
 
           </div>
 
-        )}
-
-      </header>
+        </div>
+      )}
 
       {/* =====================================
-          MAIN CONTENT
+          MAIN
       ===================================== */}
 
       <main id="main-content">
@@ -508,17 +608,13 @@ function GovernmentHome() {
           "
         >
 
-          {/* =====================================
-              MACHINE BACKGROUND IMAGE
-
-              IMPORTANT:
-              Image must be:
-              public/images/hero-machine.png
-          ===================================== */}
+          {/* =================================
+              FULL BACKGROUND IMAGE
+          ================================= */}
 
           <img
             src="/images/hero-machine.png"
-            alt="Traditional weighing machine"
+            alt="Weighing machine"
             className="
               absolute
               inset-0
@@ -531,9 +627,9 @@ function GovernmentHome() {
             "
           />
 
-          {/* =====================================
-              MAIN DARK OVERLAY
-          ===================================== */}
+          {/* =================================
+              DARK OVERLAY
+          ================================= */}
 
           <div
             className="
@@ -543,9 +639,9 @@ function GovernmentHome() {
             "
           />
 
-          {/* =====================================
-              LEFT SIDE GRADIENT
-          ===================================== */}
+          {/* =================================
+              LEFT DARK GRADIENT
+          ================================= */}
 
           <div
             className="
@@ -558,9 +654,9 @@ function GovernmentHome() {
             "
           />
 
-          {/* =====================================
+          {/* =================================
               MOBILE GRADIENT
-          ===================================== */}
+          ================================= */}
 
           <div
             className="
@@ -574,9 +670,9 @@ function GovernmentHome() {
             "
           />
 
-          {/* =====================================
+          {/* =================================
               HERO CONTENT
-          ===================================== */}
+          ================================= */}
 
           <div
             className="
@@ -601,9 +697,7 @@ function GovernmentHome() {
 
             <div className="w-full max-w-2xl">
 
-              {/* =====================================
-                  OFFICIAL BADGE
-              ===================================== */}
+              {/* BADGE */}
 
               <div
                 className="
@@ -634,9 +728,7 @@ function GovernmentHome() {
 
               </div>
 
-              {/* =====================================
-                  TITLE
-              ===================================== */}
+              {/* TITLE */}
 
               <h2
                 className="
@@ -658,9 +750,7 @@ function GovernmentHome() {
 
               </h2>
 
-              {/* =====================================
-                  DESCRIPTION
-              ===================================== */}
+              {/* DESCRIPTION */}
 
               <p
                 className="
@@ -679,9 +769,7 @@ function GovernmentHome() {
                 Metrology platform.
               </p>
 
-              {/* =====================================
-                  BUTTONS
-              ===================================== */}
+              {/* BUTTONS */}
 
               <div
                 className="
@@ -761,9 +849,7 @@ function GovernmentHome() {
 
               </div>
 
-              {/* =====================================
-                  HERO FEATURES
-              ===================================== */}
+              {/* HERO FEATURES */}
 
               <div
                 className="
@@ -1405,6 +1491,7 @@ function NavItem({
         py-3.5
         text-sm
         font-semibold
+        text-white
         transition
         ${
           active
@@ -1440,13 +1527,13 @@ function MobileNavItem({
       onClick={onClick}
       className={`
         flex
-        min-h-[50px]
+        min-h-[52px]
         items-center
         gap-3
         rounded-xl
         px-4
         text-left
-        text-sm
+        text-base
         font-semibold
         transition
         ${
@@ -1732,12 +1819,19 @@ function ServiceCard({
         {description}
       </p>
 
-      <div className="mt-5 flex items-center gap-2 text-sm font-bold text-green-700">
-
+      <div
+        className="
+          mt-5
+          flex
+          items-center
+          gap-2
+          text-sm
+          font-bold
+          text-green-700
+        "
+      >
         Access Service
-
         <ArrowRight size={16} />
-
       </div>
 
     </button>
