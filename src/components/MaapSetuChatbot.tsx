@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import {
   Bot,
   MessageCircle,
@@ -16,10 +17,135 @@ type Message = {
   text: string;
 };
 
+const API_BASE = "https://maapsetu-w1sf.onrender.com";
+
+function renderInlineMarkdown(text: string): ReactNode[] {
+  const normalized = text
+    .replace(/\s+\*\s+(?=\*\*[^*]+\*\*)/g, "\n")
+    .replace(/\s+•\s+/g, "\n")
+    .replace(/\s+-\s+(?=\*\*[^*]+\*\*)/g, "\n");
+
+  const parts = normalized.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+
+  return parts.map((part, index) => {
+    if (/^\*\*[^*]+\*\*$/.test(part)) {
+      return (
+        <strong key={index} className="font-bold text-slate-900">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    if (/^`[^`]+`$/.test(part)) {
+      return (
+        <code
+          key={index}
+          className="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-green-700"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+
+    return <span key={index}>{part}</span>;
+  });
+}
+
+function FormattedBotMessage({ text }: { text: string }) {
+  const normalizedText = text
+    .replace(/\r\n/g, "\n")
+    .replace(/\s+\*\s+(?=\*\*[^*]+\*\*)/g, "\n")
+    .replace(/\s+•\s+/g, "\n")
+    .replace(/\s+-\s+(?=\*\*[^*]+\*\*)/g, "\n");
+
+  const lines = normalizedText.split("\n");
+  const blocks: ReactNode[] = [];
+  let bulletItems: string[] = [];
+  let numberedItems: string[] = [];
+
+  const flushLists = () => {
+    if (bulletItems.length) {
+      blocks.push(
+        <ul
+          key={`bullets-${blocks.length}`}
+          className="my-2 list-disc space-y-1.5 pl-5"
+        >
+          {bulletItems.map((item, index) => (
+            <li key={index}>{renderInlineMarkdown(item)}</li>
+          ))}
+        </ul>
+      );
+      bulletItems = [];
+    }
+
+    if (numberedItems.length) {
+      blocks.push(
+        <ol
+          key={`numbers-${blocks.length}`}
+          className="my-2 list-decimal space-y-1.5 pl-5"
+        >
+          {numberedItems.map((item, index) => (
+            <li key={index}>{renderInlineMarkdown(item)}</li>
+          ))}
+        </ol>
+      );
+      numberedItems = [];
+    }
+  };
+
+  lines.forEach((rawLine) => {
+    const line = rawLine.trim();
+
+    if (!line) {
+      flushLists();
+      return;
+    }
+
+    const bulletMatch = line.match(/^(?:[-*•])\s+(.+)$/);
+    if (bulletMatch) {
+      if (numberedItems.length) flushLists();
+      bulletItems.push(bulletMatch[1]);
+      return;
+    }
+
+    const numberedMatch = line.match(/^\d+[.)]\s+(.+)$/);
+    if (numberedMatch) {
+      if (bulletItems.length) flushLists();
+      numberedItems.push(numberedMatch[1]);
+      return;
+    }
+
+    flushLists();
+
+    const headingMatch = line.match(/^#{1,3}\s+(.+)$/);
+    if (headingMatch) {
+      blocks.push(
+        <p
+          key={`heading-${blocks.length}`}
+          className="mt-2 mb-1 font-bold text-slate-900"
+        >
+          {renderInlineMarkdown(headingMatch[1])}
+        </p>
+      );
+      return;
+    }
+
+    blocks.push(
+      <p key={`paragraph-${blocks.length}`} className="mb-2 last:mb-0">
+        {renderInlineMarkdown(line)}
+      </p>
+    );
+  });
+
+  flushLists();
+  return <>{blocks}</>;
+}
+
 function MaapSetuChatbot() {
   const [isOpen, setIsOpen] = useState(false);
 
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -68,12 +194,10 @@ function MaapSetuChatbot() {
     ]);
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const trimmedMessage = message.trim();
 
-    if (!trimmedMessage) {
-      return;
-    }
+    if (!trimmedMessage) return;
 
     const userMessage: Message = {
       id: Date.now(),
@@ -81,87 +205,71 @@ function MaapSetuChatbot() {
       text: trimmedMessage,
     };
 
-    setMessages((previous) => [
-      ...previous,
-      userMessage,
-    ]);
-
+    setMessages((previous) => [...previous, userMessage]);
     setMessage("");
 
-    const lowerMessage = trimmedMessage.toLowerCase();
+    setIsLoading(true);
 
-    setTimeout(() => {
-      if (
-        lowerMessage.includes("certificate") ||
-        lowerMessage.includes("verify")
-      ) {
-        addBotMessage(
-          "You can verify a certificate using the Verify Certificate page. You can search by Business Name and Instrument Type or scan the certificate QR code."
-        );
-        return;
+    try {
+      const response = await fetch(`${API_BASE}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmedMessage }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to get AI response.");
       }
 
-      if (
-        lowerMessage.includes("register") ||
-        lowerMessage.includes("instrument")
-      ) {
-        addBotMessage(
-          "For instrument registration, please open Business Registration and submit the required business and instrument information."
-        );
-        return;
-      }
-
-      if (
-        lowerMessage.includes("application") ||
-        lowerMessage.includes("status")
-      ) {
-        addBotMessage(
-          "You can track your application from the Application Tracking section after logging in."
-        );
-        return;
-      }
-
-      if (
-        lowerMessage.includes("appointment") ||
-        lowerMessage.includes("schedule")
-      ) {
-        addBotMessage(
-          "You can view and manage your verification appointments from the Appointments section."
-        );
-        return;
-      }
-
-      if (
-        lowerMessage.includes("hello") ||
-        lowerMessage.includes("hi") ||
-        lowerMessage.includes("hey")
-      ) {
-        addBotMessage(
-          "Hello! 👋 Welcome to MaapSetu. I can help you with certificate verification, instrument registration, applications and appointments."
-        );
-        return;
-      }
-
+      addBotMessage(data.reply || "Sorry, I could not generate a response.");
+    } catch (error) {
+      console.error("Chatbot request error:", error);
       addBotMessage(
-        "I can currently help you with Certificate Verification, Instrument Registration, Application Status and Appointments. Please choose one of the options below or ask your question."
+        "Sorry, I am unable to connect to the MaapSetu AI assistant right now. Please try again."
       );
-    }, 500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleQuickQuestion = (question: (typeof quickQuestions)[number]) => {
-    setMessages((previous) => [
-      ...previous,
-      {
-        id: Date.now(),
-        sender: "user",
-        text: question.label,
-      },
-    ]);
+  const handleQuickQuestion = async (
+    question: (typeof quickQuestions)[number]
+  ) => {
+    const userMessage: Message = {
+      id: Date.now(),
+      sender: "user",
+      text: question.label,
+    };
 
-    setTimeout(() => {
-      addBotMessage(question.answer);
-    }, 400);
+    setMessages((previous) => [...previous, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question.label }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to get AI response.");
+      }
+
+      addBotMessage(data.reply || "Sorry, I could not generate a response.");
+    } catch (error) {
+      console.error("Quick question error:", error);
+      addBotMessage(
+        "Sorry, I am unable to connect to the MaapSetu AI assistant right now. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <>
@@ -348,7 +456,7 @@ function MaapSetuChatbot() {
 
                   <div
                     className={`
-                      max-w-[85%]
+                      max-w-[90%]
                       rounded-2xl
                       px-4
                       py-3
@@ -356,16 +464,34 @@ function MaapSetuChatbot() {
                       leading-6
                       ${
                         item.sender === "user"
-                          ? "rounded-br-md bg-green-700 text-white"
+                          ? "rounded-br-md bg-green-700 text-white whitespace-pre-wrap"
                           : "rounded-bl-md bg-white text-slate-700 shadow-sm border border-slate-200"
                       }
                     `}
                   >
-                    {item.text}
+                    {item.sender === "bot" ? (
+                      <div className="space-y-1">
+                        {FormattedBotMessage({ text: item.text })}
+                      </div>
+                    ) : (
+                      item.text
+                    )}
                   </div>
 
                 </div>
               ))}
+
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="rounded-2xl rounded-bl-md border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                    <div className="flex items-center gap-1.5" aria-label="Assistant is typing">
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-green-600 [animation-delay:-0.2s]" />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-green-600 [animation-delay:-0.1s]" />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-green-600" />
+                    </div>
+                  </div>
+                </div>
+              )}
 
             </div>
 
@@ -461,7 +587,7 @@ function MaapSetuChatbot() {
                   sendMessage();
                 }
               }}
-              placeholder="Ask MaapSetu Assistant..."
+              placeholder={isLoading ? "Assistant is typing..." : "Ask MaapSetu Assistant..."}
               className="
                 min-w-0
                 flex-1
@@ -484,7 +610,7 @@ function MaapSetuChatbot() {
             <button
               type="button"
               onClick={sendMessage}
-              disabled={!message.trim()}
+              disabled={!message.trim() || isLoading}
               aria-label="Send message"
               className="
                 flex
