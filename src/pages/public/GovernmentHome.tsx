@@ -604,7 +604,8 @@ function GovernmentHome() {
             overflow-hidden
             bg-slate-950
             sm:min-h-[850px]
-            md:min-h-[680px]
+            md:min-h-[660px]
+            lg:min-h-[680px]
           "
         >
 
@@ -623,7 +624,8 @@ function GovernmentHome() {
               object-cover
               object-[60%_center]
               sm:object-[60%_center]
-              md:object-right
+              md:object-[72%_center]
+              lg:object-[76%_center]
             "
           />
 
@@ -688,14 +690,16 @@ function GovernmentHome() {
               pt-16
               sm:min-h-[850px]
               sm:pt-20
-              md:min-h-[680px]
+              md:min-h-[660px]
               md:items-center
-              md:px-6
-              md:py-20
+              md:px-8
+              md:py-16
+              lg:min-h-[680px]
+              lg:px-10
             "
           >
 
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-2xl lg:max-w-[650px]">
 
               {/* BADGE */}
 
@@ -760,6 +764,7 @@ function GovernmentHome() {
                   leading-7
                   text-slate-100
                   sm:text-lg
+                  md:max-w-[590px]
                   md:text-xl
                   md:leading-8
                 "
@@ -855,10 +860,10 @@ function GovernmentHome() {
                 className="
                   mt-8
                   grid
-                  max-w-2xl
+                  max-w-[800px]
                   gap-3
                   sm:grid-cols-3
-                  sm:gap-5
+                  sm:gap-4
                 "
               >
 
@@ -1566,6 +1571,7 @@ function HeroFeature({
     <div
       className="
         flex
+        min-h-[82px]
         items-center
         gap-3
         rounded-xl
