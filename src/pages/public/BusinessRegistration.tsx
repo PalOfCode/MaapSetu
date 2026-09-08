@@ -1,4 +1,6 @@
 import React, {
+  useEffect,
+  useRef,
   useState,
   type FormEvent,
   type ReactNode,
@@ -10,6 +12,8 @@ import {
   Check,
   CheckCircle2,
   LockKeyhole,
+  LocateFixed,
+  Loader2,
   Mail,
   MapPin,
   Phone,
@@ -88,6 +92,21 @@ function BusinessRegistration() {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
+  const [isDetectingLocation, setIsDetectingLocation] =
+    useState(false);
+
+  const [locationMessage, setLocationMessage] =
+    useState("");
+
+  const [locationCoords, setLocationCoords] =
+    useState<{
+      latitude: number;
+      longitude: number;
+    } | null>(null);
+
+  const locationRequestedRef =
+    useRef(false);
+
   /* =========================================
      INPUT HANDLER
   ========================================= */
@@ -111,6 +130,158 @@ function BusinessRegistration() {
 
     setError("");
   };
+
+  /* =========================================
+     AUTO-DETECT BUSINESS LOCATION
+  ========================================= */
+
+  const detectBusinessLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationMessage(
+        "Location services are not supported by this browser."
+      );
+      return;
+    }
+
+    setIsDetectingLocation(true);
+    setLocationMessage("");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } =
+            position.coords;
+
+          setLocationCoords({
+            latitude,
+            longitude,
+          });
+
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(
+              latitude
+            )}&lon=${encodeURIComponent(
+              longitude
+            )}&zoom=18&addressdetails=1&accept-language=en`
+          );
+
+          if (!response.ok) {
+            throw new Error(
+              "Unable to find the address for your location."
+            );
+          }
+
+          const data = await response.json();
+          const address = data?.address || {};
+
+          const city =
+            address.city ||
+            address.town ||
+            address.village ||
+            address.municipality ||
+            address.locality ||
+            "";
+
+          const district =
+            address.state_district ||
+            address.district ||
+            address.county ||
+            "";
+
+          const state =
+            address.state || "";
+
+          const pincode =
+            address.postcode || "";
+
+          const road = [
+            address.house_number,
+            address.road,
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+          const area = [
+            address.neighbourhood,
+            address.suburb,
+            address.hamlet,
+          ]
+            .filter(Boolean)
+            .join(", ");
+
+          const finalAddress = [
+            road,
+            area,
+            city,
+          ]
+            .filter(Boolean)
+            .join(", ") || data?.display_name || "";
+
+          setForm((previous) => ({
+            ...previous,
+            address:
+              finalAddress || previous.address,
+            city:
+              city || previous.city,
+            district:
+              district || previous.district,
+            state:
+              state || previous.state,
+            pincode:
+              pincode || previous.pincode,
+          }));
+
+          setLocationMessage(
+            finalAddress
+              ? "Location detected and address details filled automatically."
+              : "Location detected, but address details could not be read."
+          );
+          setError("");
+        } catch (error) {
+          console.error(
+            "Location reverse geocoding error:",
+            error
+          );
+          setLocationMessage(
+            "Location found, but address details could not be loaded. Please enter them manually."
+          );
+        } finally {
+          setIsDetectingLocation(false);
+        }
+      },
+      (error) => {
+        console.error(
+          "Browser geolocation error:",
+          error
+        );
+
+        const message =
+          error.code === 1
+            ? "Location permission was denied. Please allow location access and try again."
+            : error.code === 2
+            ? "Your location could not be determined. Please try again."
+            : "Location detection timed out. Please try again.";
+
+        setLocationMessage(message);
+        setIsDetectingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 300000,
+      }
+    );
+  };
+
+  useEffect(() => {
+    if (
+      step === 2 &&
+      !locationRequestedRef.current
+    ) {
+      locationRequestedRef.current = true;
+      detectBusinessLocation();
+    }
+  }, [step]);
 
   /* =========================================
      STEP 1 VALIDATION
@@ -1197,18 +1368,34 @@ function BusinessRegistration() {
 
                     <div>
 
-                      <label
-                        htmlFor="address"
-                        className="mb-2 block text-sm font-semibold text-slate-800"
-                      >
+                      <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <label
+                          htmlFor="address"
+                          className="block text-sm font-semibold text-slate-800"
+                        >
+                          Complete Business Address
+                          <span className="ml-1 text-red-500">*</span>
+                        </label>
 
-                        Complete Business Address
-
-                        <span className="ml-1 text-red-500">
-                          *
-                        </span>
-
-                      </label>
+                        <button
+                          type="button"
+                          onClick={detectBusinessLocation}
+                          disabled={isDetectingLocation}
+                          className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs font-bold text-[#087F3E] transition hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isDetectingLocation ? (
+                            <Loader2
+                              size={15}
+                              className="animate-spin"
+                            />
+                          ) : (
+                            <LocateFixed size={15} />
+                          )}
+                          {isDetectingLocation
+                            ? "Detecting location..."
+                            : "Use my current location"}
+                        </button>
+                      </div>
 
                       <div className="relative">
 
@@ -1230,6 +1417,65 @@ function BusinessRegistration() {
                           placeholder="Enter complete business address"
                           className="w-full resize-none rounded-xl border border-slate-300 bg-white py-3.5 pl-11 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#087F3E] focus:ring-4 focus:ring-green-100"
                         />
+                      {locationMessage && (
+                        <div className="mt-2 flex items-start gap-2 text-xs leading-5 text-slate-500">
+                          <MapPin
+                            size={14}
+                            className="mt-0.5 shrink-0 text-[#087F3E]"
+                          />
+                          <span>{locationMessage}</span>
+                        </div>
+                      )}
+
+                      {locationCoords && (
+                        <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                            <div>
+                              <p className="text-sm font-bold text-slate-800">
+                                Selected Location
+                              </p>
+                              <p className="mt-0.5 text-xs text-slate-500">
+                                Your current location is shown on the map.
+                              </p>
+                            </div>
+
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-50 text-[#087F3E]">
+                              <MapPin size={18} />
+                            </div>
+                          </div>
+
+                          <div className="relative h-64 w-full bg-slate-100 sm:h-72">
+                            <iframe
+                              title="Selected business location"
+                              src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(
+                                locationCoords.longitude - 0.01
+                              )}%2C${encodeURIComponent(
+                                locationCoords.latitude - 0.01
+                              )}%2C${encodeURIComponent(
+                                locationCoords.longitude + 0.01
+                              )}%2C${encodeURIComponent(
+                                locationCoords.latitude + 0.01
+                              )}&layer=mapnik&marker=${encodeURIComponent(
+                                locationCoords.latitude
+                              )}%2C${encodeURIComponent(
+                                locationCoords.longitude
+                              )}`}
+                              className="h-full w-full border-0"
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                            <span>
+                              Latitude: {locationCoords.latitude.toFixed(6)}
+                            </span>
+                            <span>
+                              Longitude: {locationCoords.longitude.toFixed(6)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
 
                       </div>
 
