@@ -145,14 +145,30 @@ function GovernmentHome() {
 
           </button>
 
-          {/* DESKTOP ACTIONS */}
+          {/* =====================================
+              DESKTOP ACTIONS
+          ===================================== */}
 
           <div className="hidden items-center gap-3 md:flex">
 
             <button
               type="button"
               onClick={goToCertificateVerification}
-              className="flex items-center gap-2 rounded-lg border border-green-700 px-4 py-2.5 text-sm font-semibold text-green-700 transition hover:bg-green-50"
+              className="
+                flex
+                items-center
+                gap-2
+                rounded-lg
+                border
+                border-green-700
+                px-4
+                py-2.5
+                text-sm
+                font-semibold
+                text-green-700
+                transition
+                hover:bg-green-50
+              "
             >
               <ShieldCheck size={17} />
               Verify Certificate
@@ -161,19 +177,41 @@ function GovernmentHome() {
             <button
               type="button"
               onClick={goToLogin}
-              className="rounded-lg bg-green-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800"
+              className="
+                rounded-lg
+                bg-green-700
+                px-5
+                py-2.5
+                text-sm
+                font-semibold
+                text-white
+                transition
+                hover:bg-green-800
+              "
             >
               Login
             </button>
 
           </div>
 
-          {/* MOBILE MENU BUTTON */}
+          {/* =====================================
+              MOBILE MENU BUTTON
+          ===================================== */}
 
           <button
             type="button"
             onClick={() => setMobileMenu((value) => !value)}
-            className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-800 md:hidden"
+            className="
+              flex
+              h-11
+              w-11
+              items-center
+              justify-center
+              rounded-xl
+              bg-green-50
+              text-green-800
+              md:hidden
+            "
             aria-label="Toggle menu"
             aria-expanded={mobileMenu}
           >
@@ -207,12 +245,16 @@ function GovernmentHome() {
 
               <NavItem
                 label="About"
-                onClick={() => scrollToSection("about-department")}
+                onClick={() =>
+                  scrollToSection("about-department")
+                }
               />
 
               <NavItem
                 label="Services"
-                onClick={() => scrollToSection("services")}
+                onClick={() =>
+                  scrollToSection("services")
+                }
               />
 
               <NavItem
@@ -222,12 +264,16 @@ function GovernmentHome() {
 
               <NavItem
                 label="Notices"
-                onClick={() => scrollToSection("notice")}
+                onClick={() =>
+                  scrollToSection("notice")
+                }
               />
 
               <NavItem
                 label="Contact"
-                onClick={() => scrollToSection("contact")}
+                onClick={() =>
+                  scrollToSection("contact")
+                }
               />
 
             </div>
@@ -235,7 +281,18 @@ function GovernmentHome() {
             <button
               type="button"
               onClick={goToBusinessRegistration}
-              className="my-2 rounded-lg bg-white px-4 py-2 text-sm font-bold text-green-700 transition hover:bg-green-50"
+              className="
+                my-2
+                rounded-lg
+                bg-white
+                px-4
+                py-2
+                text-sm
+                font-bold
+                text-green-700
+                transition
+                hover:bg-green-50
+              "
             >
               Register Business
             </button>
@@ -251,18 +308,43 @@ function GovernmentHome() {
         {mobileMenu && (
 
           <div
-            className="fixed inset-x-0 bottom-0 top-[68px] z-50 overflow-y-auto border-t border-slate-200 bg-white shadow-2xl md:hidden"
+            className="
+              fixed
+              inset-x-0
+              bottom-0
+              top-[68px]
+              z-[60]
+              overflow-y-auto
+              border-t
+              border-slate-200
+              bg-white
+              shadow-2xl
+              md:hidden
+            "
           >
 
             <div className="mx-auto min-h-full max-w-7xl px-4 py-5">
 
-              {/* MOBILE MENU BRAND CARD */}
+              {/* MENU BRAND CARD */}
 
               <div className="mb-5 rounded-2xl bg-green-50 p-4">
 
                 <div className="flex items-center gap-3">
 
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-green-700 shadow-sm">
+                  <div
+                    className="
+                      flex
+                      h-12
+                      w-12
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-xl
+                      bg-white
+                      text-green-700
+                      shadow-sm
+                    "
+                  >
                     <Scale size={24} />
                   </div>
 
@@ -282,7 +364,7 @@ function GovernmentHome() {
 
               </div>
 
-              {/* MOBILE NAV */}
+              {/* MENU ITEMS */}
 
               <div className="grid gap-1">
 
@@ -304,7 +386,9 @@ function GovernmentHome() {
                 <MobileNavItem
                   icon={<FileText size={19} />}
                   label="Services"
-                  onClick={() => scrollToSection("services")}
+                  onClick={() =>
+                    scrollToSection("services")
+                  }
                 />
 
                 <MobileNavItem
@@ -317,25 +401,41 @@ function GovernmentHome() {
                 <MobileNavItem
                   icon={<Bell size={19} />}
                   label="Notices"
-                  onClick={() => scrollToSection("notice")}
+                  onClick={() =>
+                    scrollToSection("notice")
+                  }
                 />
 
                 <MobileNavItem
                   icon={<MapPin size={19} />}
                   label="Contact"
-                  onClick={() => scrollToSection("contact")}
+                  onClick={() =>
+                    scrollToSection("contact")
+                  }
                 />
 
               </div>
 
-              {/* MOBILE ACTIONS */}
+              {/* MENU BUTTONS */}
 
               <div className="mt-5 grid gap-3">
 
                 <button
                   type="button"
                   onClick={goToLogin}
-                  className="min-h-[54px] rounded-xl border border-green-700 px-4 text-left text-sm font-bold text-green-700 transition hover:bg-green-50"
+                  className="
+                    min-h-[54px]
+                    rounded-xl
+                    border
+                    border-green-700
+                    px-4
+                    text-left
+                    text-sm
+                    font-bold
+                    text-green-700
+                    transition
+                    hover:bg-green-50
+                  "
                 >
                   Login
                 </button>
@@ -343,14 +443,25 @@ function GovernmentHome() {
                 <button
                   type="button"
                   onClick={goToBusinessRegistration}
-                  className="min-h-[54px] rounded-xl bg-green-700 px-4 text-left text-sm font-bold text-white transition hover:bg-green-800"
+                  className="
+                    min-h-[54px]
+                    rounded-xl
+                    bg-green-700
+                    px-4
+                    text-left
+                    text-sm
+                    font-bold
+                    text-white
+                    transition
+                    hover:bg-green-800
+                  "
                 >
                   Business Registration
                 </button>
 
               </div>
 
-              {/* MOBILE MENU FOOTER */}
+              {/* MENU FOOTER */}
 
               <div className="mt-8 border-t border-slate-200 pt-6 text-center">
 
@@ -389,7 +500,7 @@ function GovernmentHome() {
         <section
           className="
             relative
-            min-h-[900px]
+            min-h-[850px]
             overflow-hidden
             bg-slate-950
             sm:min-h-[850px]
@@ -398,13 +509,11 @@ function GovernmentHome() {
         >
 
           {/* =====================================
-              MACHINE IMAGE
+              MACHINE BACKGROUND IMAGE
 
-              Mobile:
-              object-contain = less cropping
-
-              Desktop:
-              object-cover = full hero background
+              IMPORTANT:
+              Image must be:
+              public/images/hero-machine.png
           ===================================== */}
 
           <img
@@ -415,40 +524,52 @@ function GovernmentHome() {
               inset-0
               h-full
               w-full
-              object-contain
-              object-center
-              md:object-cover
+              object-cover
+              object-[60%_center]
+              sm:object-[60%_center]
               md:object-right
             "
           />
 
-          {/* MAIN DARK OVERLAY */}
+          {/* =====================================
+              MAIN DARK OVERLAY
+          ===================================== */}
 
-          <div className="absolute inset-0 bg-slate-950/55" />
+          <div
+            className="
+              absolute
+              inset-0
+              bg-slate-950/50
+            "
+          />
 
-          {/* LEFT READABILITY GRADIENT */}
+          {/* =====================================
+              LEFT SIDE GRADIENT
+          ===================================== */}
 
           <div
             className="
               absolute
               inset-0
               bg-gradient-to-r
-              from-slate-950/85
-              via-slate-950/50
-              to-transparent
+              from-slate-950/90
+              via-slate-950/60
+              to-slate-950/15
             "
           />
 
-          {/* MOBILE BOTTOM GRADIENT */}
+          {/* =====================================
+              MOBILE GRADIENT
+          ===================================== */}
 
           <div
             className="
               absolute
               inset-0
               bg-gradient-to-b
-              from-slate-950/50
-              via-transparent
-              to-slate-950/70
+              from-slate-950/65
+              via-slate-950/20
+              to-slate-950/75
               md:hidden
             "
           />
@@ -460,13 +581,14 @@ function GovernmentHome() {
           <div
             className="
               relative
+              z-10
               mx-auto
               flex
-              min-h-[900px]
+              min-h-[850px]
               max-w-7xl
               items-start
               px-4
-              pb-12
+              pb-14
               pt-16
               sm:min-h-[850px]
               sm:pt-20
@@ -479,7 +601,9 @@ function GovernmentHome() {
 
             <div className="w-full max-w-2xl">
 
-              {/* OFFICIAL BADGE */}
+              {/* =====================================
+                  OFFICIAL BADGE
+              ===================================== */}
 
               <div
                 className="
@@ -510,7 +634,9 @@ function GovernmentHome() {
 
               </div>
 
-              {/* HERO HEADING */}
+              {/* =====================================
+                  TITLE
+              ===================================== */}
 
               <h2
                 className="
@@ -532,7 +658,9 @@ function GovernmentHome() {
 
               </h2>
 
-              {/* HERO DESCRIPTION */}
+              {/* =====================================
+                  DESCRIPTION
+              ===================================== */}
 
               <p
                 className="
@@ -552,7 +680,7 @@ function GovernmentHome() {
               </p>
 
               {/* =====================================
-                  HERO BUTTONS
+                  BUTTONS
               ===================================== */}
 
               <div
@@ -768,8 +896,18 @@ function GovernmentHome() {
 
             <button
               type="button"
-              onClick={() => scrollToSection("services")}
-              className="flex items-center gap-1 text-sm font-bold text-green-700 sm:ml-auto"
+              onClick={() =>
+                scrollToSection("services")
+              }
+              className="
+                flex
+                items-center
+                gap-1
+                text-sm
+                font-bold
+                text-green-700
+                sm:ml-auto
+              "
             >
 
               View Services
@@ -832,14 +970,18 @@ function GovernmentHome() {
               icon={<CalendarDays size={25} />}
               title="Appointments"
               description="View and manage scheduled verification appointments."
-              action={() => navigate("/merchant/appointments")}
+              action={() =>
+                navigate("/merchant/appointments")
+              }
             />
 
             <ServiceCard
               icon={<Search size={25} />}
               title="Application Tracking"
               description="Submit and track instrument verification applications."
-              action={() => navigate("/merchant/applications")}
+              action={() =>
+                navigate("/merchant/applications")
+              }
             />
 
           </div>
@@ -960,14 +1102,18 @@ function GovernmentHome() {
               icon={<Bell size={22} />}
               title="Public Notices"
               description="Latest department updates"
-              action={() => scrollToSection("notice")}
+              action={() =>
+                scrollToSection("notice")
+              }
             />
 
             <QuickLink
               icon={<Users size={22} />}
               title="Contact Offices"
               description="Regional office information"
-              action={() => scrollToSection("contact")}
+              action={() =>
+                scrollToSection("contact")
+              }
             />
 
           </div>
@@ -1106,11 +1252,13 @@ function GovernmentHome() {
               },
               {
                 label: "Services",
-                action: () => scrollToSection("services"),
+                action: () =>
+                  scrollToSection("services"),
               },
               {
                 label: "Public Notices",
-                action: () => scrollToSection("notice"),
+                action: () =>
+                  scrollToSection("notice"),
               },
               {
                 label: "Acts & Rules",
@@ -1336,7 +1484,7 @@ function HeroFeature({
         rounded-xl
         border
         border-white/15
-        bg-black/20
+        bg-black/25
         p-3
         backdrop-blur-sm
       "
