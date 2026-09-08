@@ -4,10 +4,15 @@ const dotenv = require("dotenv");
 const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { GoogleGenAI } = require("@google/genai");
 const PDFDocument = require("pdfkit");
 const QRCode = require("qrcode");
 
 dotenv.config();
+
+const gemini = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
 /* =========================================================
 APP
@@ -5197,6 +5202,57 @@ app.get(
     }
   }
 );
+/* =========================================================
+   GEMINI AI CHATBOT
+   ========================================================= */
+
+app.post(
+  "/api/chat",
+  async (req, res) => {
+    try {
+      const { message } = req.body;
+
+      if (
+        !message ||
+        typeof message !== "string" ||
+        !message.trim()
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Message is required.",
+        });
+      }
+
+      const response =
+        await gemini.models.generateContent({
+          model: "gemini-3.5-flash-lite",
+          contents: message.trim(),
+          config: {
+            systemInstruction:
+              "You are MaapSetu Assistant, an AI assistant for the MaapSetu online verification system for weighing and measuring instruments. Answer clearly and helpfully. Focus on MaapSetu applications, certificates, verification, instruments, merchants, inspectors and general website guidance. Do not invent official government rules, fees, certificate numbers, application status, or database information.",
+          },
+        });
+
+      return res.json({
+        success: true,
+        reply: response.text,
+      });
+
+    } catch (error) {
+      console.error(
+        "Gemini Chatbot Error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to process your message.",
+      });
+    }
+  }
+);
+
 /* =========================================================
 404
 ========================================================= */
