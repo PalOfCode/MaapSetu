@@ -1519,6 +1519,148 @@ app.get(
   }
 );
 /* =========================================================
+   GET SINGLE MERCHANT APPLICATION
+   ========================================================= */
+
+app.get(
+  "/api/applications/:applicationNumber",
+  authenticateToken,
+  requireRole("merchant"),
+  async (req, res) => {
+    try {
+      const merchantUserId = Number(req.user?.id);
+      const { applicationNumber } = req.params;
+
+      if (!Number.isInteger(merchantUserId)) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid merchant authentication.",
+        });
+      }
+
+      const result = await pool.query(
+        `
+        SELECT
+          a.id,
+          a.application_number,
+          a.business_id,
+          a.instrument_id,
+          a.application_type,
+          a.status,
+          a.assigned_inspector_id,
+          a.appointment_date,
+          a.appointment_time,
+          a.gatc_id,
+          a.submitted_at,
+          a.updated_at,
+
+          b.business_name,
+          b.city,
+          b.district,
+          b.state,
+
+          i.instrument_code,
+          i.instrument_type,
+          i.manufacturer,
+          i.location AS instrument_location,
+
+          ins.name AS inspector_name
+
+        FROM applications a
+
+        LEFT JOIN businesses b
+          ON b.id = a.business_id
+
+        LEFT JOIN instruments i
+          ON i.id = a.instrument_id
+
+        LEFT JOIN inspectors ins
+          ON ins.id = a.assigned_inspector_id
+
+        WHERE
+          a.application_number = $1
+          AND a.business_id IN (
+            SELECT id
+            FROM businesses
+            WHERE user_id = $2
+          )
+
+        LIMIT 1
+        `,
+        [applicationNumber, merchantUserId]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: `Application ${applicationNumber} not found.`,
+        });
+      }
+
+      const row = result.rows[0];
+
+      return res.json({
+        success: true,
+        application: {
+          id: row.id,
+          application_number: row.application_number,
+
+          business_id: row.business_id,
+          business_name: row.business_name,
+
+          instrument_id: row.instrument_id,
+          instrument_code: row.instrument_code,
+          instrument_type: row.instrument_type,
+
+          application_type: row.application_type,
+
+          submitted_at: row.submitted_at,
+
+          assigned_inspector_id:
+            row.assigned_inspector_id,
+
+          inspector_name:
+            row.inspector_name,
+
+          status: row.status,
+
+          location:
+            row.instrument_location || null,
+
+          city: row.city || null,
+          district: row.district || null,
+          state: row.state || null,
+
+          appointment_date:
+            row.appointment_date || null,
+
+          appointment_time:
+            row.appointment_time || null,
+
+          gatc_id:
+            row.gatc_id || null,
+
+          remarks: "",
+
+          updated_at:
+            row.updated_at,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Get single merchant application error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to load application details.",
+      });
+    }
+  }
+);
+/* =========================================================
 2. GET ALL INSPECTORS
 ========================================================= */
 
