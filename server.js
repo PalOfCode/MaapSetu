@@ -1661,6 +1661,149 @@ app.get(
   }
 );
 /* =========================================================
+   GET MERCHANT APPOINTMENTS
+   ========================================================= */
+
+app.get(
+  "/api/appointments",
+  authenticateToken,
+  requireRole("merchant"),
+  async (req, res) => {
+    try {
+      const merchantUserId = Number(req.user?.id);
+
+      if (!Number.isInteger(merchantUserId)) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid merchant authentication.",
+        });
+      }
+
+      const result = await pool.query(
+        `
+        SELECT
+          a.id,
+          a.application_number,
+          a.status,
+          a.assigned_inspector_id,
+          a.appointment_date,
+          a.appointment_time,
+          a.gatc_id,
+          a.submitted_at,
+          a.updated_at,
+
+          b.business_name,
+          b.city,
+          b.district,
+          b.state,
+
+          i.instrument_code,
+          i.instrument_type,
+          i.location AS instrument_location,
+
+          ins.name AS inspector_name,
+          ins.employee_id AS inspector_employee_id
+
+        FROM applications a
+
+        LEFT JOIN businesses b
+          ON b.id = a.business_id
+
+        LEFT JOIN instruments i
+          ON i.id = a.instrument_id
+
+        LEFT JOIN inspectors ins
+          ON ins.id = a.assigned_inspector_id
+
+        WHERE
+          b.user_id = $1
+          AND a.appointment_date IS NOT NULL
+          AND a.appointment_time IS NOT NULL
+          AND a.status IN (
+          'Scheduled',
+           'Completed',
+            'Cancelled'
+  )
+        ORDER BY
+          a.appointment_date ASC,
+          a.appointment_time ASC,
+          a.id DESC
+        `,
+        [merchantUserId]
+      );
+
+      const appointments = result.rows.map((row) => ({
+        scheduleId: `SCH-${String(row.id).padStart(5, "0")}`,
+
+        applicationId:
+          row.application_number || "",
+
+        officerId:
+          row.inspector_employee_id ||
+          String(row.assigned_inspector_id || ""),
+
+        GATCId:
+          row.gatc_id || "",
+
+        scheduledDate:
+          row.appointment_date || "",
+
+        scheduledTime:
+          row.appointment_time || "",
+
+        location:
+          row.instrument_location ||
+          [
+            row.city,
+            row.district,
+            row.state,
+          ]
+            .filter(Boolean)
+            .join(", ") ||
+          "Not Provided",
+
+        status:
+          row.status === "Completed"
+            ? "Completed"
+            : row.status === "Cancelled"
+            ? "Cancelled"
+            : "Scheduled",
+
+        assignedBy: "Admin",
+
+        instrumentId:
+          row.instrument_code ||
+          "",
+
+        instrumentType:
+          row.instrument_type ||
+          "Instrument",
+
+        createdAt:
+          row.updated_at ||
+          row.submitted_at ||
+          new Date().toISOString(),
+      }));
+
+      return res.json({
+        success: true,
+        appointments,
+      });
+    } catch (error) {
+      console.error(
+        "Get merchant appointments error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to load appointments",
+      });
+    }
+  }
+);
+/* =========================================================
 2. GET ALL INSPECTORS
 ========================================================= */
 
@@ -2301,6 +2444,7 @@ try {
     "Scheduled",
     "Completed",
     "Rejected",
+    "Cancelled",
   ];
 
 
