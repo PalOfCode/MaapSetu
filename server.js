@@ -617,107 +617,6 @@ await pool.query(
 
 }
 );
-/* =========================================================
-   UPDATE USER LOCATION
-   ========================================================= */
-
-app.put(
-  "/api/users/location",
-  authenticateToken,
-  async (req, res) => {
-    try {
-      const { latitude, longitude } = req.body;
-
-      // Validate location
-      if (
-        latitude === undefined ||
-        longitude === undefined
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "Latitude and longitude are required.",
-        });
-      }
-
-      const lat = Number(latitude);
-      const lng = Number(longitude);
-
-      if (
-        !Number.isFinite(lat) ||
-        !Number.isFinite(lng)
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid latitude or longitude.",
-        });
-      }
-
-      // Latitude range
-      if (lat < -90 || lat > 90) {
-        return res.status(400).json({
-          success: false,
-          message: "Latitude must be between -90 and 90.",
-        });
-      }
-
-      // Longitude range
-      if (lng < -180 || lng > 180) {
-        return res.status(400).json({
-          success: false,
-          message: "Longitude must be between -180 and 180.",
-        });
-      }
-
-      // Update logged-in user's location
-      const result = await pool.query(
-        `
-        UPDATE users
-        SET
-          latitude = $1,
-          longitude = $2
-        WHERE id = $3
-        RETURNING
-          id,
-          name,
-          email,
-          phone,
-          latitude,
-          longitude,
-          role
-        `,
-        [
-          lat,
-          lng,
-          req.user.id,
-        ]
-      );
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found.",
-        });
-      }
-
-      return res.json({
-        success: true,
-        message: "Location updated successfully.",
-        user: result.rows[0],
-      });
-
-    } catch (error) {
-      console.error(
-        "Update user location error:",
-        error
-      );
-
-      return res.status(500).json({
-        success: false,
-        message: "Unable to update user location.",
-      });
-    }
-  }
-);
 
 /* =========================================================
 TEST MERCHANT ROUTE
@@ -2402,8 +2301,6 @@ app.get(
 
           b.id AS business_id,
           b.business_name,
-          b.latitude,
-          b.longitude,
 
           i.id AS instrument_db_id,
           i.instrument_code,
@@ -2450,11 +2347,7 @@ app.get(
 
         applicant:
           row.business_name || "Applicant",
-          latitude:
-            row.latitude,
 
-          longitude:
-            row.longitude,
         instrumentId:
           row.instrument_code || "",
 
