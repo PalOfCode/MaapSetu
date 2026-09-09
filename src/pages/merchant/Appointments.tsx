@@ -62,107 +62,6 @@ interface StatCardProps {
   iconClass: string;
 }
 
-/* =========================================
-   DEFAULT APPOINTMENTS
-========================================= */
-
-const defaultAppointments: Appointment[] = [
-  {
-    scheduleId: "SCH-00041",
-    applicationId: "APP-001",
-
-    officerId: "OFF-001",
-    GATCId: "GATC-001",
-
-    scheduledDate: "28 Aug 2026",
-    scheduledTime: "10:30 AM",
-
-    location: "Kolkata",
-
-    status: "Scheduled",
-
-    assignedBy: "Admin",
-
-    instrumentId: "INS-001",
-    instrumentType:
-      "Electronic Weighing Scale",
-
-    createdAt:
-      "2026-08-20T10:00:00.000Z",
-  },
-
-  {
-    scheduleId: "SCH-00042",
-    applicationId: "APP-003",
-
-    officerId: "OFF-002",
-    GATCId: "GATC-002",
-
-    scheduledDate: "30 Aug 2026",
-    scheduledTime: "11:00 AM",
-
-    location: "Durgapur",
-
-    status: "Scheduled",
-
-    assignedBy: "Admin",
-
-    instrumentId: "INS-003",
-    instrumentType:
-      "Digital Weighing Machine",
-
-    createdAt:
-      "2026-08-22T11:00:00.000Z",
-  },
-
-  {
-    scheduleId: "SCH-00043",
-    applicationId: "APP-004",
-
-    officerId: "OFF-003",
-    GATCId: "GATC-001",
-
-    scheduledDate: "25 Aug 2026",
-    scheduledTime: "02:00 PM",
-
-    location: "Asansol",
-
-    status: "Completed",
-
-    assignedBy: "Admin",
-
-    instrumentId: "INS-004",
-    instrumentType:
-      "Counter Weighing Scale",
-
-    createdAt:
-      "2026-08-21T12:00:00.000Z",
-  },
-
-  {
-    scheduleId: "SCH-00044",
-    applicationId: "APP-005",
-
-    officerId: "OFF-004",
-    GATCId: "GATC-003",
-
-    scheduledDate: "24 Aug 2026",
-    scheduledTime: "12:30 PM",
-
-    location: "Kolkata",
-
-    status: "Cancelled",
-
-    assignedBy: "Admin",
-
-    instrumentId: "INS-005",
-    instrumentType:
-      "Electronic Weighing Scale",
-
-    createdAt:
-      "2026-08-23T09:00:00.000Z",
-  },
-];
 
 /* =========================================
    COMPONENT
@@ -173,15 +72,13 @@ function Appointments() {
     useNavigate();
 
   const [
-    appointmentList,
-    setAppointmentList,
-  ] = useState<Appointment[]>(
-    defaultAppointments
-  );
+  appointmentList,
+  setAppointmentList,
+] = useState<Appointment[]>([]);
 
   const [
     search,
-    setSearch,
+    setSearch
   ] = useState("");
 
   const [
@@ -192,99 +89,86 @@ function Appointments() {
   );
 
   /* =========================================
-     LOAD SAVED SCHEDULES
+     LOAD MERCHANT APPOINTMENTS FROM API
   ========================================= */
 
   useEffect(() => {
-    try {
-      const savedData =
-        localStorage.getItem(
-          "merchantSchedules"
-        );
+    const loadAppointments = async () => {
+      try {
+        const token = localStorage.getItem("almveToken");
 
-      if (!savedData) {
-        return;
-      }
+        if (!token) {
+          console.error("Authentication token not found.");
+          setAppointmentList([]);
+          return;
+        }
 
-      const parsed: unknown =
-        JSON.parse(savedData);
-
-      if (!Array.isArray(parsed)) {
-        return;
-      }
-
-      const savedSchedules: Appointment[] =
-        parsed.map(
-          (
-            item: Partial<Appointment>,
-            index: number
-          ) => {
-            const scheduleId =
-              item.scheduleId ||
-              `SCH-${String(
-                index + 1
-              ).padStart(5, "0")}`;
-
-            return {
-              scheduleId,
-
-              applicationId:
-                item.applicationId ||
-                "Not Available",
-
-              officerId:
-                item.officerId ||
-                "",
-
-              GATCId:
-                item.GATCId ||
-                "",
-
-              scheduledDate:
-                item.scheduledDate ||
-                "-",
-
-              scheduledTime:
-                item.scheduledTime ||
-                "-",
-
-              location:
-                item.location ||
-                "Not Provided",
-
-              status:
-                item.status ||
-                "Scheduled",
-
-              assignedBy:
-                item.assignedBy ||
-                "Admin",
-
-              instrumentId:
-                item.instrumentId ||
-                "Not Available",
-
-              instrumentType:
-                item.instrumentType ||
-                "Instrument",
-
-              createdAt:
-                item.createdAt ||
-                new Date().toISOString(),
-            };
+        const response = await fetch(
+          "https://maapsetu-w1sf.onrender.com/api/appointments",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           }
         );
 
-      setAppointmentList([
-        ...defaultAppointments,
-        ...savedSchedules,
-      ]);
-    } catch (error) {
-      console.error(
-        "Unable to load schedules:",
-        error
-      );
-    }
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data?.message || "Unable to load appointments."
+          );
+        }
+
+        if (
+          !data?.success ||
+          !Array.isArray(data.appointments)
+        ) {
+          throw new Error("Invalid appointments response.");
+        }
+
+        const validAppointments: Appointment[] =
+          data.appointments
+            .filter(
+              (item: Partial<Appointment>) =>
+                item &&
+                typeof item.scheduleId === "string" &&
+                typeof item.applicationId === "string"
+            )
+            .map((item: Partial<Appointment>) => ({
+              scheduleId: item.scheduleId || "",
+              applicationId: item.applicationId || "",
+              officerId: item.officerId || "",
+              GATCId: item.GATCId || "",
+              scheduledDate: item.scheduledDate || "",
+              scheduledTime: item.scheduledTime || "",
+              location: item.location || "Not Provided",
+              status:
+                item.status === "Completed"
+                  ? "Completed"
+                  : item.status === "Cancelled"
+                  ? "Cancelled"
+                  : "Scheduled",
+              assignedBy: item.assignedBy || "Admin",
+              instrumentId: item.instrumentId || "Not Available",
+              instrumentType: item.instrumentType || "Instrument",
+              createdAt:
+                item.createdAt || new Date().toISOString(),
+            }));
+
+        setAppointmentList(validAppointments);
+      } catch (error) {
+        console.error(
+          "Unable to load appointments:",
+          error
+        );
+        setAppointmentList([]);
+      }
+    };
+
+    loadAppointments();
   }, []);
 
   /* =========================================
@@ -395,11 +279,42 @@ function Appointments() {
   ========================================= */
 
   const upcomingAppointments =
-    uniqueAppointments.filter(
-      (appointment) =>
-        appointment.status ===
-        "Scheduled"
-    );
+    useMemo(() => {
+      const now = new Date();
+
+      return uniqueAppointments
+        .filter((appointment) => {
+          if (appointment.status !== "Scheduled") {
+            return false;
+          }
+
+          if (!appointment.scheduledDate) {
+            return false;
+          }
+
+          const dateTimeText = appointment.scheduledTime
+            ? `${appointment.scheduledDate}T${appointment.scheduledTime}`
+            : appointment.scheduledDate;
+
+          const appointmentDate = new Date(dateTimeText);
+
+          return (
+            !Number.isNaN(appointmentDate.getTime()) &&
+            appointmentDate >= now
+          );
+        })
+        .sort((a, b) => {
+          const aTime = new Date(
+            `${a.scheduledDate}T${a.scheduledTime || "00:00:00"}`
+          ).getTime();
+
+          const bTime = new Date(
+            `${b.scheduledDate}T${b.scheduledTime || "00:00:00"}`
+          ).getTime();
+
+          return aTime - bTime;
+        });
+    }, [uniqueAppointments]);
 
   /* =========================================
      VIEW APPLICATION
