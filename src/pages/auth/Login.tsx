@@ -71,8 +71,6 @@ function Login() {
   const [role, setRole] =
     useState<Role>("Merchant");
 
-  const roleRef = useRef<Role>("Merchant");
-
   const [email, setEmail] =
     useState("");
 
@@ -226,22 +224,18 @@ function Login() {
   };
 
   useEffect(() => {
-    roleRef.current = role;
-  }, [role]);
-
-  useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
 
-    let cancelled = false;
-
     const initializeGoogle = () => {
-      if (cancelled || !window.google?.accounts?.id || !googleButtonRef.current) {
+      if (
+        !window.google?.accounts?.id ||
+        !googleButtonRef.current
+      ) {
         return;
       }
 
       googleButtonRef.current.innerHTML = "";
 
-      // Google Identity Services should be initialized once.
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: (response) => {
@@ -269,7 +263,9 @@ function Login() {
     if (window.google?.accounts?.id) {
       initializeGoogle();
     } else if (existingScript) {
-      existingScript.addEventListener("load", initializeGoogle, { once: true });
+      existingScript.addEventListener("load", initializeGoogle, {
+        once: true,
+      });
     } else {
       const script = document.createElement("script");
       script.src = "https://accounts.google.com/gsi/client";
@@ -280,9 +276,9 @@ function Login() {
     }
 
     return () => {
-      cancelled = true;
+      window.google?.accounts?.id.cancel();
     };
-  }, []);
+  }, [role]);
 
   /* =========================================
      LOGIN HANDLER
