@@ -25,6 +25,8 @@ import Appointments from "./pages/merchant/Appointments";
 import Certificates from "./pages/merchant/Certificates";
 import Payments from "./pages/merchant/Payments";
 import MerchantNotifications from "./pages/merchant/Notifications";
+import MerchantProfile from "./pages/merchant/Profile";
+import MerchantSettings from "./pages/merchant/Settings";
 /* =========================
    PUBLIC
 ========================= */
@@ -147,6 +149,15 @@ function App() {
          path="/merchant/notifications"
          element={<MerchantNotifications />}
         />
+        <Route
+        path="/merchant/profile"
+         element={<MerchantProfile />}
+        />
+
+       <Route
+         path="/merchant/settings"
+          element={<MerchantSettings />}
+         />
         {/* =====================================
             PUBLIC CERTIFICATE VERIFICATION
         ===================================== */}
