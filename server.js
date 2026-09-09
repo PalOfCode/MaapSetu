@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 const { GoogleGenAI } = require("@google/genai");
 const PDFDocument = require("pdfkit");
 const QRCode = require("qrcode");
@@ -77,6 +78,10 @@ console.error(
 
 process.exit(1);
 }
+
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
 
 /* =========================================================
 HELPER: CREATE JWT
@@ -5791,6 +5796,130 @@ res.status(500).json({
 });
 
 }
+);
+/* =========================================================
+   GOOGLE LOGIN
+========================================================= */
+
+app.post(
+  "/api/auth/google",
+  async (req, res) => {
+    try {
+      const { credential, role } = req.body;
+
+      if (!credential) {
+        return res.status(400).json({
+          success: false,
+          message: "Google credential is required.",
+        });
+      }
+
+      const allowedRoles = [
+        "merchant",
+        "inspector",
+        "admin",
+      ];
+
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid role.",
+        });
+      }
+
+      const ticket =
+        await googleClient.verifyIdToken({
+          idToken: credential,
+          audience:
+            process.env.GOOGLE_CLIENT_ID,
+        });
+
+      const payload =
+        ticket.getPayload();
+
+      const googleEmail =
+        payload?.email
+          ?.trim()
+          .toLowerCase();
+
+      const emailVerified =
+        payload?.email_verified;
+
+      if (!googleEmail || !emailVerified) {
+        return res.status(401).json({
+          success: false,
+          message:
+            "Google email could not be verified.",
+        });
+      }
+
+      const result =
+        await pool.query(
+          `
+          SELECT
+            id,
+            name,
+            email,
+            phone,
+            role,
+            created_at
+          FROM users
+          WHERE email = $1
+          LIMIT 1
+          `,
+          [googleEmail]
+        );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "No ALMVE account exists with this Google email. Please register first.",
+        });
+      }
+
+      const user = result.rows[0];
+
+      if (user.role !== role) {
+        return res.status(403).json({
+          success: false,
+          message:
+            `This Google account is registered as ${user.role}, not ${role}.`,
+        });
+      }
+
+      const token =
+        createToken(user);
+
+      return res.json({
+        success: true,
+        message:
+          "Google login successful",
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          created_at:
+            user.created_at,
+        },
+      });
+
+    } catch (error) {
+      console.error(
+        "Google login error:",
+        error
+      );
+
+      return res.status(401).json({
+        success: false,
+        message:
+          "Google authentication failed.",
+      });
+    }
+  }
 );
 
 /* =========================================================
