@@ -386,6 +386,11 @@ function Dashboard() {
   ] = useState("Merchant");
 
   const [
+    unreadNotificationCount,
+    setUnreadNotificationCount,
+  ] = useState(0);
+
+  const [
     loading,
     setLoading,
   ] = useState(true);
@@ -713,6 +718,111 @@ function Dashboard() {
   }, []);
 
   /* =======================================================
+     NOTIFICATION COUNT
+  ======================================================= */
+
+  const updateNotificationCount = () => {
+    try {
+      const storedRead = localStorage.getItem(
+        "almveMerchantReadNotifications"
+      );
+
+      let readIds: string[] = [];
+
+      try {
+        const parsedRead = storedRead
+          ? JSON.parse(storedRead)
+          : [];
+
+        if (Array.isArray(parsedRead)) {
+          readIds = parsedRead.map(String);
+        }
+      } catch {
+        readIds = [];
+      }
+
+      /*
+       * Notifications.tsx creates notification IDs from
+       * application IDs/statuses. We create the same IDs here
+       * from the applications already loaded by Dashboard.
+       */
+      const notificationIds: string[] = [];
+
+      applications.forEach((item) => {
+        const id = String(item.id || "").trim();
+
+        if (!id) {
+          return;
+        }
+
+        const rawStatus = String(
+          item.status || ""
+        ).trim();
+
+        if (
+          rawStatus === "Scheduled" ||
+          rawStatus === "Inspection Scheduled"
+        ) {
+          notificationIds.push(`appointment-${id}`);
+        }
+
+        if (
+          rawStatus === "Completed" ||
+          rawStatus === "Approved"
+        ) {
+          notificationIds.push(`completed-${id}`);
+        }
+
+        if (rawStatus === "Rejected") {
+          notificationIds.push(`rejected-${id}`);
+        }
+
+        if (
+          rawStatus === "Pending" ||
+          rawStatus === "Submitted" ||
+          rawStatus === "Under Review"
+        ) {
+          notificationIds.push(`application-${id}`);
+        }
+      });
+
+      const unreadCount = notificationIds.filter(
+        (id) => !readIds.includes(id)
+      ).length;
+
+      setUnreadNotificationCount(
+        unreadCount
+      );
+    } catch (error) {
+      console.error(
+        "Unable to calculate notification count:",
+        error
+      );
+      setUnreadNotificationCount(0);
+    }
+  };
+
+  useEffect(() => {
+    updateNotificationCount();
+
+    const handleNotificationUpdate = () => {
+      updateNotificationCount();
+    };
+
+    window.addEventListener(
+      "almveNotificationsUpdated",
+      handleNotificationUpdate
+    );
+
+    return () => {
+      window.removeEventListener(
+        "almveNotificationsUpdated",
+        handleNotificationUpdate
+      );
+    };
+  }, [applications]);
+
+  /* =======================================================
      STATISTICS
   ======================================================= */
 
@@ -833,9 +943,13 @@ function Dashboard() {
               title="Notifications"
             >
               <Bell size={22} />
-              <span className="absolute right-1.5 top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-600 px-1 text-[10px] font-bold text-white">
-                3
-              </span>
+              {unreadNotificationCount > 0 && (
+                <span className="absolute right-1.5 top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-600 px-1 text-[10px] font-bold text-white">
+                  {unreadNotificationCount > 99
+                    ? "99+"
+                    : unreadNotificationCount}
+                </span>
+              )}
             </button>
 
             <button
@@ -968,8 +1082,18 @@ function Dashboard() {
             <SidebarButton
               icon={<Bell size={19} />}
               label="Notifications"
-              badge="3"
-              onClick={() => goTo("/merchant/notifications")}
+              badge={
+                unreadNotificationCount > 0
+                  ? unreadNotificationCount > 99
+                    ? "99+"
+                    : String(
+                        unreadNotificationCount
+                      )
+                  : undefined
+              }
+              onClick={() =>
+                goTo("/merchant/notifications")
+              }
             />
 
             <SidebarButton

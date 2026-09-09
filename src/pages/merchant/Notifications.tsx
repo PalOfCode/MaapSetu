@@ -351,6 +351,22 @@ export default function MerchantNotifications() {
 
   useEffect(() => {
     void loadNotifications();
+
+    const handleNotificationUpdate = () => {
+      void loadNotifications();
+    };
+
+    window.addEventListener(
+      "almveNotificationsUpdated",
+      handleNotificationUpdate
+    );
+
+    return () => {
+      window.removeEventListener(
+        "almveNotificationsUpdated",
+        handleNotificationUpdate
+      );
+    };
   }, []);
 
   const markAsRead = (id: string) => {
@@ -388,6 +404,10 @@ export default function MerchantNotifications() {
       "almveMerchantReadNotifications",
       JSON.stringify(ids)
     );
+
+    window.dispatchEvent(
+      new Event("almveNotificationsUpdated")
+    );
   };
 
   const markAllAsRead = () => {
@@ -405,6 +425,10 @@ export default function MerchantNotifications() {
     localStorage.setItem(
       "almveMerchantReadNotifications",
       JSON.stringify(ids)
+    );
+
+    window.dispatchEvent(
+      new Event("almveNotificationsUpdated")
     );
   };
 
