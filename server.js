@@ -617,7 +617,221 @@ await pool.query(
 
 }
 );
+/* =========================================================
+UPDATE CURRENT USER PROFILE
+========================================================= */
 
+app.put(
+"/api/auth/profile",
+authenticateToken,
+async (req, res) => {
+const client = await pool.connect();
+
+try {
+const {
+name,
+phone,
+businessName,
+address,
+} = req.body;
+
+if (!name || typeof name !== "string") {
+return res.status(400).json({
+success: false,
+message: "Name is required.",
+});
+}
+
+await client.query("BEGIN");
+
+const userResult = await client.query(
+`
+UPDATE users
+SET
+name = $1,
+phone = $2
+WHERE id = $3
+RETURNING
+id,
+name,
+email,
+phone,
+role,
+created_at
+`,
+[
+name.trim(),
+phone ? String(phone).trim() : null,
+req.user.id,
+]
+);
+
+if (userResult.rows.length === 0) {
+await client.query("ROLLBACK");
+
+return res.status(404).json({
+success: false,
+message: "User not found.",
+});
+}
+
+if (
+req.user.role === "merchant" &&
+(businessName !== undefined ||
+address !== undefined)
+) {
+await client.query(
+`
+UPDATE businesses
+SET
+business_name = COALESCE($1, business_name),
+address = COALESCE($2, address)
+WHERE user_id = $3
+`,
+[
+businessName !== undefined
+? String(businessName).trim()
+: null,
+address !== undefined
+? String(address).trim()
+: null,
+req.user.id,
+]
+);
+}
+
+await client.query("COMMIT");
+
+return res.json({
+success: true,
+message: "Profile updated successfully.",
+user: userResult.rows[0],
+});
+} catch (error) {
+await client.query("ROLLBACK");
+
+console.error(
+"Update profile error:",
+error
+);
+
+return res.status(500).json({
+success: false,
+message: "Unable to update profile.",
+});
+} finally {
+client.release();
+}
+}
+);
+
+/* =========================================================
+CHANGE PASSWORD
+========================================================= */
+
+app.put(
+"/api/auth/change-password",
+authenticateToken,
+async (req, res) => {
+try {
+const {
+currentPassword,
+newPassword,
+} = req.body;
+
+if (
+!currentPassword ||
+!newPassword
+) {
+return res.status(400).json({
+success: false,
+message:
+"Current password and new password are required.",
+});
+}
+
+if (
+typeof newPassword !== "string" ||
+newPassword.length < 6
+) {
+return res.status(400).json({
+success: false,
+message:
+"New password must be at least 6 characters.",
+});
+}
+
+const result = await pool.query(
+`
+SELECT
+id,
+password_hash
+FROM users
+WHERE id = $1
+LIMIT 1
+`,
+[req.user.id]
+);
+
+if (result.rows.length === 0) {
+return res.status(404).json({
+success: false,
+message: "User not found.",
+});
+}
+
+const user = result.rows[0];
+
+const passwordMatch =
+await bcrypt.compare(
+currentPassword,
+user.password_hash
+);
+
+if (!passwordMatch) {
+return res.status(401).json({
+success: false,
+message: "Current password is incorrect.",
+});
+}
+
+const passwordHash =
+await bcrypt.hash(
+newPassword,
+12
+);
+
+await pool.query(
+`
+UPDATE users
+SET password_hash = $1
+WHERE id = $2
+`,
+[
+passwordHash,
+req.user.id,
+]
+);
+
+return res.json({
+success: true,
+message:
+"Password changed successfully.",
+});
+} catch (error) {
+console.error(
+"Change password error:",
+error
+);
+
+return res.status(500).json({
+success: false,
+message:
+"Unable to change password.",
+});
+}
+}
+);
 /* =========================================================
 TEST MERCHANT ROUTE
 ========================================================= */
