@@ -1,5 +1,4 @@
-
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -19,6 +18,40 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://maapsetu-w1sf.onrender.com";
+
+const GOOGLE_CLIENT_ID =
+  import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+          }) => void;
+          renderButton: (
+            element: HTMLElement,
+            options: {
+              type?: string;
+              theme?: string;
+              size?: string;
+              text?: string;
+              shape?: string;
+              width?: number;
+            }
+          ) => void;
+          cancel: () => void;
+        };
+      };
+    };
+  }
+}
+
 /* =========================================
    ROLE TYPE
 ========================================= */
@@ -37,6 +70,8 @@ function Login() {
 
   const [role, setRole] =
     useState<Role>("Merchant");
+
+  const roleRef = useRef<Role>("Merchant");
 
   const [email, setEmail] =
     useState("");
@@ -59,6 +94,12 @@ function Login() {
   const [isLoading, setIsLoading] =
     useState(false);
 
+  const googleButtonRef =
+    useRef<HTMLDivElement>(null);
+
+  const [googleLoading, setGoogleLoading] =
+    useState(false);
+
   /* =========================================
      RESTORE REMEMBERED EMAIL
   ========================================= */
@@ -73,6 +114,174 @@ function Login() {
       setEmail(rememberedEmail);
       setRememberMe(true);
     }
+  }, []);
+
+  /* =========================================
+     COMPLETE AUTHENTICATION
+  ========================================= */
+
+  const completeAuthentication = (
+    token: string,
+    user: {
+      id?: number;
+      name?: string;
+      email?: string;
+      phone?: string;
+      role?: string;
+      created_at?: string;
+    }
+  ) => {
+    const backendRole =
+      String(user.role || "").toLowerCase();
+
+    localStorage.setItem("almveToken", token);
+    localStorage.setItem("almveUser", JSON.stringify(user));
+    localStorage.setItem("almveRole", backendRole);
+    localStorage.setItem("isAuthenticated", "true");
+
+    if (backendRole === "merchant") {
+      navigate("/merchant/dashboard", { replace: true });
+      return;
+    }
+
+    if (backendRole === "inspector") {
+      navigate("/inspector/dashboard", { replace: true });
+      return;
+    }
+
+    if (backendRole === "admin") {
+      navigate("/admin/dashboard", { replace: true });
+      return;
+    }
+
+    setError("Unsupported account role.");
+  };
+
+  /* =========================================
+     GOOGLE SIGN-IN
+  ========================================= */
+
+  const handleGoogleCredential = async (
+    credential: string
+  ) => {
+    if (googleLoading) return;
+
+    if (!GOOGLE_CLIENT_ID) {
+      setError(
+        "Google Login is not configured. Add VITE_GOOGLE_CLIENT_ID."
+      );
+      return;
+    }
+
+    setGoogleLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/google`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            credential,
+            role: role.toLowerCase(),
+          }),
+        }
+      );
+
+      const data = await response.json().catch(() => null);
+
+      if (
+        !response.ok ||
+        !data?.success ||
+        !data?.token ||
+        !data?.user
+      ) {
+        setError(
+          data?.message ||
+            "Google login failed. Please try again."
+        );
+        return;
+      }
+
+      const backendRole =
+        String(data.user.role || "").toLowerCase();
+
+      if (backendRole !== role.toLowerCase()) {
+        setError(
+          `This account is registered as ${data.user.role || "another role"}. Please select the correct portal.`
+        );
+        return;
+      }
+
+      completeAuthentication(data.token, data.user);
+    } catch (error) {
+      console.error("Google login request failed:", error);
+      setError("Cannot connect to the ALMVE server.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    roleRef.current = role;
+  }, [role]);
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return;
+
+    let cancelled = false;
+
+    const initializeGoogle = () => {
+      if (cancelled || !window.google?.accounts?.id || !googleButtonRef.current) {
+        return;
+      }
+
+      googleButtonRef.current.innerHTML = "";
+
+      // Google Identity Services should be initialized once.
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: (response) => {
+          void handleGoogleCredential(response.credential);
+        },
+      });
+
+      window.google.accounts.id.renderButton(
+        googleButtonRef.current,
+        {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          width: 360,
+        }
+      );
+    };
+
+    const existingScript = document.querySelector(
+      'script[src="https://accounts.google.com/gsi/client"]'
+    );
+
+    if (window.google?.accounts?.id) {
+      initializeGoogle();
+    } else if (existingScript) {
+      existingScript.addEventListener("load", initializeGoogle, { once: true });
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogle;
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /* =========================================
@@ -109,7 +318,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "https://maapsetu-w1sf.onrender.com/api/auth/login",
+        `${API_BASE_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
@@ -180,9 +389,7 @@ function Login() {
         selectedRole
       ) {
         setError(
-          `This account is registered as ${
-            data.user.role || "another role"
-          }. Please select the correct portal.`
+          `This account is registered as ${data.user.role || "another role"}. Please select the correct portal.`
         );
 
         return;
@@ -204,67 +411,12 @@ function Login() {
       }
 
       /* ================================
-         SAVE AUTH SESSION
+         SAVE AUTH SESSION + ROUTE
       ================================= */
 
-      localStorage.setItem(
-        "almveToken",
-        data.token
-      );
-
-      localStorage.setItem(
-        "almveUser",
-        JSON.stringify(
-          data.user
-        )
-      );
-
-      localStorage.setItem(
-        "almveRole",
-        role
-      );
-
-      localStorage.setItem(
-        "isAuthenticated",
-        "true"
-      );
-
-      /* ================================
-         ROLE ROUTING
-      ================================= */
-
-      if (backendRole === "merchant") {
-        navigate(
-          "/merchant/dashboard",
-          { replace: true }
-        );
-
-        return;
-      }
-
-      if (
-        backendRole ===
-        "inspector"
-      ) {
-        navigate(
-          "/inspector/dashboard",
-          { replace: true }
-        );
-
-        return;
-      }
-
-      if (backendRole === "admin") {
-        navigate(
-          "/admin/dashboard",
-          { replace: true }
-        );
-
-        return;
-      }
-
-      setError(
-        "Unsupported account role."
+      completeAuthentication(
+        data.token,
+        data.user
       );
     } catch (error) {
       console.error(
@@ -928,6 +1080,30 @@ function Login() {
                 </label>
 
               </div>
+
+              {/* Google Sign In */}
+              {GOOGLE_CLIENT_ID && (
+                <div className="mb-5">
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="h-px flex-1 bg-slate-200" />
+                    <span className="text-xs font-semibold text-slate-400">
+                      OR
+                    </span>
+                    <div className="h-px flex-1 bg-slate-200" />
+                  </div>
+
+                  <div
+                    ref={googleButtonRef}
+                    className="flex min-h-10 justify-center"
+                  />
+
+                  {googleLoading && (
+                    <p className="mt-2 text-center text-xs font-semibold text-slate-500">
+                      Signing in with Google...
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Sign In */}
 

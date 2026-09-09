@@ -12,6 +12,13 @@ import {
 import Login from "./pages/auth/Login";
 
 /* =========================
+   PUBLIC LEGAL PAGES
+========================= */
+
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+
+/* =========================
    MERCHANT
 ========================= */
 
@@ -27,6 +34,7 @@ import Payments from "./pages/merchant/Payments";
 import MerchantNotifications from "./pages/merchant/Notifications";
 import MerchantProfile from "./pages/merchant/Profile";
 import MerchantSettings from "./pages/merchant/Settings";
+
 /* =========================
    PUBLIC
 ========================= */
@@ -89,6 +97,20 @@ function App() {
         />
 
         {/* =====================================
+            LEGAL / OAUTH PAGES
+        ===================================== */}
+
+        <Route
+          path="/privacy-policy"
+          element={<PrivacyPolicy />}
+        />
+
+        <Route
+          path="/terms"
+          element={<TermsOfService />}
+        />
+
+        {/* =====================================
             BUSINESS REGISTRATION
         ===================================== */}
 
@@ -145,36 +167,36 @@ function App() {
           path="/merchant/payments"
           element={<Payments />}
         />
+
         <Route
-         path="/merchant/notifications"
-         element={<MerchantNotifications />}
-        />
-        <Route
-        path="/merchant/profile"
-         element={<MerchantProfile />}
+          path="/merchant/notifications"
+          element={<MerchantNotifications />}
         />
 
-       <Route
-         path="/merchant/settings"
+        <Route
+          path="/merchant/profile"
+          element={<MerchantProfile />}
+        />
+
+        <Route
+          path="/merchant/settings"
           element={<MerchantSettings />}
-         />
+        />
+
         {/* =====================================
             PUBLIC CERTIFICATE VERIFICATION
         ===================================== */}
 
-        {/* <Route
-          path="/verify/:certificateId"
+        <Route
+          path="/verify"
           element={<PublicVerify />}
-        /> */}
-         <Route
-           path="/verify"
-           element={<PublicVerify />}
         />
 
-           <Route
-              path="/verify/:certificateId"
-              element={<PublicVerify />}
+        <Route
+          path="/verify/:certificateId"
+          element={<PublicVerify />}
         />
+
         {/* =====================================
             INSPECTOR
         ===================================== */}
@@ -323,7 +345,7 @@ function SimplePage({
       <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
 
         <p className="text-sm font-semibold text-emerald-700">
-          ALMVE
+          MaapSetu
         </p>
 
         <h1 className="mt-2 text-3xl font-bold text-slate-900">
